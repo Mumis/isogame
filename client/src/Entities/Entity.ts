@@ -9,6 +9,7 @@ export enum EntityState {
     WALKING,
     ATTACKING,
     DYING,
+    AIRBORNE
 }
 
 export enum EntityDirection {
@@ -45,7 +46,7 @@ export class Entity {
     public image: HTMLImageElement = new Image();
     public spirteSheetMap: SpriteSheetMap = [];
 
-    public castShadow: boolean = true;
+    public castShadow: boolean = false;
 
 	getComponent<T>(type: Constructor<T>): T {
 		for (const component of this.components) {
@@ -100,17 +101,26 @@ export class Entity {
     }
 
     public draw(ctx: CanvasRenderingContext2D, dt: number) {
-        // Calculate position on the canvas
-        // const positionX = Game.getWorldPosition(position.x, position.y) - (this.width / 2);
-        // const positionY = (this.position[1] * Game.TILE_SIZE_HEIGHT / 2) - (this.position[0] * Game.TILE_SIZE_HEIGHT / 2) - this.height;
-        
-        // if (this.castShadow) {
-        //     const shadowX = positionX - (this.width / 2);
-        //     const shadowY = positionY + this.height;
+        const screenPos = Game.worldPosToScreenPos(this.position);
+        const extraSize = this.position.y * 8;
 
-        //     ctx.ellipse(shadowX, shadowY, this.width, this.height / 2, Math.PI, 0, 4 * Math.PI);
-        //     ctx.fill();
-        // }
+        const x = screenPos.x - this.width/2 - extraSize / 2;
+        const y = screenPos.y - this.height - extraSize / 2;
+        const width = this.width + extraSize;
+        const height = this.height + extraSize
+        
+        if (this.castShadow) {
+            const shadowX = screenPos.x;
+            // Lol hack
+            const shadowY = screenPos.z - (this.height - extraSize) / 5;
+
+            const shadowHeight = (this.height - extraSize) / 5;
+            const shadowWidth = (this.width - extraSize) / 3;
+
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.ellipse(shadowX, shadowY, shadowWidth, shadowHeight, Math.PI, 0, 4 * Math.PI);
+            ctx.fill();
+        }
 
         ctx.imageSmoothingEnabled = false;
 
@@ -119,50 +129,32 @@ export class Entity {
             map.direction === this.direction
         );
         
-        if (!animationData) {
-            ctx.drawImage(
-                this.image,
-                this.position.y,
-                this.position.z,
-                this.width,
-                this.height
-            );
-
-            return;
-        }
-        
-        const { xIndex, yIndex, steps, speed } = animationData;
+        const xIndex = animationData?.xIndex ?? 0;
+        const yIndex = animationData?.yIndex ?? 0;
+        const steps = animationData?.steps ?? 0;
+        const speed = animationData?.speed ?? 0;
         
         // Calculate source X and Y position in the sprite sheet
         const sourceX = (xIndex + this.step) * this.frameWidth;
         const sourceY = yIndex * this.frameHeight;
-        
-        // const scale = 1 + this.position[2] / 300;
-        // const offsetY = -this.position[2]; // Move up by max 50 units
     
         // Save the current transformation matrix
-        ctx.save();
-    
-        // // Apply transformations
-        // ctx.translate(positionX + this.width / 2, positionY + this.height / 2);
-        // ctx.scale(scale, scale);
-        // ctx.translate(-this.width / 2, -this.height / 2 + offsetY);
-    
+        ctx.save();    
+
         // Draw the specific frame from the sprite sheet
         ctx.drawImage(
             this.image,
             sourceX,
-            sourceY,
+            sourceY,  
             this.frameWidth,
             this.frameHeight,
-            this.position.x - this.width / 2,
-            this.position.z + this.height / 2,
-            this.width,
-            this.height
+            x,
+            y,
+            width,
+            height
         );
         
-        // // Restore the transformation matrix
-        // ctx.restore();
+        ctx.restore();
         
         // Accumulate the time elapsed
         this.timeElapsed += dt;
@@ -178,6 +170,5 @@ export class Entity {
         if (this.step >= steps) {
             this.step = xIndex;  // Reset step for looping animations
         }
-    }
-    
+    } 
 }

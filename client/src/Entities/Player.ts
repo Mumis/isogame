@@ -12,6 +12,8 @@ export class Player extends Entity {
     public frameWidth: number = 32;
     public width: number = 32;
     public height: number = 32;
+    
+    public castShadow: boolean = true;
 
     constructor() {
         super();
@@ -20,7 +22,7 @@ export class Player extends Entity {
             new Stats(),
             new Physical(),
             new Hitbox(
-                new BoxHitbox(this.width, this.height / 1.5, this.height / 1.5),
+                new BoxHitbox(this.width, this.height, this.height),
             ),
             new Movable()
         );

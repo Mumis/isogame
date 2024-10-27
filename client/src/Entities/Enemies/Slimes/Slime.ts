@@ -21,7 +21,7 @@ export class Slime extends Entity {
             new Stats(),
             new Physical(),
             new Hitbox(
-                new BoxHitbox(this.width, this.height / 1.5, this.height / 1.5),
+                new BoxHitbox(this.width, this.height, this.height),
             ),
             new Movable()
         );

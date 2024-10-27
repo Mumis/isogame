@@ -18,7 +18,7 @@ export class GravitySystem extends System {
 
             if (entity.position.y > 0) {
                 // Apply gravity to vertical velocity
-                physical.velocity.y -= physical.acceleration * physical.mass;
+                physical.velocity.y -= (physical.acceleration * physical.mass) / 32;
             } else {
                 // Ensure the entity doesn't go below the ground
                 entity.position.y = 0;

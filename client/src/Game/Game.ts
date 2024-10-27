@@ -44,17 +44,6 @@ export class Game {
 
     public readonly events = new EventBus();
     public fps = 1 / Game.TIME_STEP;
-    
-    public readonly tiles: Tile[] = [
-        ...this.map.map((row, z) => 
-            row.map(
-                (tile, x) => new Tile(
-                    new Vector3(x, 0, z),
-                    -1
-                )
-            )
-        ).flat()
-    ]
 
     private readonly entities: Entity[] = [
         new Player(),
@@ -73,7 +62,7 @@ export class Game {
         new CameraSystem(),
         new RenderSystem(),
         new HudSystem(),
-        new DebugSystem()
+        //new DebugSystem(),
     ];
     
     private animationFrameId: number | null = null;
@@ -91,6 +80,16 @@ export class Game {
     ) {
         ctx.canvas.width = this.width;
         ctx.canvas.height = this.height;
+
+        // Load map
+        this.map.forEach((row, z) => 
+            row.forEach(
+                (tile, x) => this.entities.push(new Tile(
+                    new Vector3(x, 0, z),
+                    -1
+                ))
+            )
+        )
 
         addEventListener('resize', this.onResize.bind(this));
     }
@@ -181,7 +180,6 @@ export class Game {
         this.fps = Game.FPS_DECAY * (1 / dt) + (1 - Game.FPS_DECAY) * this.fps;
 
         while (this.running && dt >= Game.TIME_STEP) {
-
             for (const system of this.systems) {
                 system.update(Game.TIME_STEP, this);
             }
@@ -212,29 +210,28 @@ export class Game {
     }
 
 
-    public static screenPosToWorldPos(position: Vector3): Vector3 {
-        const x = (position.x / Game.TILE_SIZE_WIDTH + position.z / Game.TILE_SIZE_DEPTH);
-        const z = (position.x / Game.TILE_SIZE_WIDTH - position.z / Game.TILE_SIZE_DEPTH);
-        const y = position.y;
+    // public static screenPosToWorldPos(position: Vector3): Vector3 {
+    //     const x = (position.x / Game.TILE_SIZE_WIDTH + position.z / Game.TILE_SIZE_DEPTH);
+    //     const z = (position.x / Game.TILE_SIZE_WIDTH - position.z / Game.TILE_SIZE_DEPTH);
+    //     const y = position.y;
     
+    //     return new Vector3(x, y, z);
+    // }
+    
+
+    public static worldPosToScreenPos(position: Vector3): Vector3 {
+        const x = (position.x * Game.TILE_SIZE_WIDTH / 2) + (position.z * Game.TILE_SIZE_WIDTH / 2);
+        const y = (position.x * Game.TILE_SIZE_DEPTH / 2) - (position.z * Game.TILE_SIZE_DEPTH / 2) - (position.y * Game.TILE_SIZE_DEPTH);
+        const z = (position.x * Game.TILE_SIZE_DEPTH / 2) - (position.z * Game.TILE_SIZE_DEPTH / 2);
         return new Vector3(x, y, z);
     }
-    
 
-    public static worldPosToScreenPos(position): Vector3 {
-        const worldX = (position.x * Game.TILE_SIZE_WIDTH / 2) + (position.z * Game.TILE_SIZE_WIDTH / 2);
-        const worldZ = (position.x * Game.TILE_SIZE_DEPTH / 2) - (position.z * Game.TILE_SIZE_DEPTH / 2);
-        const worldY = position.y;
-
-        return new Vector3(worldX, worldY, worldZ);
-    }
-
-    public positionInCamera(position: Vector3): Vector3 {
+    // public positionInCamera(position: Vector3): Vector3 {
         
-        return position.subtract(new Vector3(
-            this.cameraPosition.x - this.ctx.canvas.width / 2,
-            this.cameraPosition.y,
-            this.cameraPosition.z - this.ctx.canvas.width / 2
-        ));
-    }
+    //     return position.subtract(new Vector3(
+    //         this.cameraPosition.x - this.ctx.canvas.width / 2,
+    //         this.cameraPosition.y,
+    //         this.cameraPosition.z - this.ctx.canvas.width / 2
+    //     ));
+    // }
 }

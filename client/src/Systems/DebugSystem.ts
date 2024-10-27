@@ -7,6 +7,8 @@ import { System } from './System';
 
 export class DebugSystem extends System {
     private div = document.createElement('div');
+    private readonly bufferCanvas: HTMLCanvasElement = document.createElement('canvas');
+    private readonly bufferCtx: CanvasRenderingContext2D = this.bufferCanvas.getContext('2d')!;
 
     public constructor() {
         super();
@@ -30,36 +32,43 @@ export class DebugSystem extends System {
     }
 
     public update(dt: number, game: Game): void {
-        const cameraX = game.cameraPosition.x - game.ctx.canvas.width / 2;
-        const cameraY = game.cameraPosition.z - game.ctx.canvas.height / 2;
+        this.bufferCanvas.height = game.ctx.canvas.clientHeight;
+        this.bufferCanvas.width = game.ctx.canvas.clientWidth;
+        this.bufferCtx.imageSmoothingEnabled = false;
+
+        const screenPos = Game.worldPosToScreenPos(game.cameraPosition);
+
+        // Calculate the camera offsets to center the view
+        const cameraX = screenPos.x - this.bufferCanvas.width / 2;
+        const cameraY = screenPos.y - this.bufferCanvas.height / 2;
+
+        // Set up the transformation: translate to the camera position
+        this.bufferCtx.transform(1, 0, 0, 1, -cameraX, -cameraY);
 
         for (const entity of this.filteredEntities) {
+            const screenPos = Game.worldPosToScreenPos(entity.position);
 
             if (entity.hasComponent(Hitbox)) {
-                // TODO: 
-                // Change so it draws the hitbox, not the width and height of entity
-
                 const hitbox = entity.getComponent(Hitbox);
 
-                // if (hitbox.box instanceof BoxHitbox) {
-                //     drawBox(
-                //         entity.position[0] * Game.TILE_SIZE_WIDTH - cameraX, 
-                //         entity.position[1] * Game.TILE_SIZE_HEIGHT - cameraY, 
-                //         hitbox.box.width, 
-                //         hitbox.box.depth, 
-                //         'green', 
-                //         game.ctx
-                //     );
-                // }
+                if (hitbox.box instanceof BoxHitbox) {
+                    drawBox(
+                        new Vector3(screenPos.x - entity.width/2, screenPos.y - entity.height, 0), 
+                        hitbox.box.width, 
+                        hitbox.box.depth, 
+                        'green', 
+                        this.bufferCtx
+                    );
+                }
 
             }
 
             if (!(entity instanceof Tile)) {
                 drawPoint(
-                    game.positionInCamera(entity.position),
-                    `${Game.screenPosToWorldPos(entity.position).floor().toString()}`, 
+                    screenPos,
+                    `${entity.position.floor().toString()}`, 
                     'yellow', 
-                    game.ctx,
+                    this.bufferCtx,
                     10
                 );
             }
@@ -68,25 +77,31 @@ export class DebugSystem extends System {
         // Show FPS
         this.div.innerHTML = `
             FPS: ${Math.floor(game.fps)} <br/>
-            Camera position: ${Game.screenPosToWorldPos(game.cameraPosition).floor().toString()}
+            Camera position: ${game.cameraPosition.floor().toString()}
         `;
+
+        game.ctx.drawImage(this.bufferCanvas, 0, 0);
     }
 }
 
 function drawPoint(position: Vector3, text: string, color: string, ctx: CanvasRenderingContext2D, size = 4) {
     ctx.fillStyle = color;
-    ctx.fillRect(position.x - size/2, position.z - size/2, size, size);
+    ctx.fillRect(position.x - size/2, position.y - size/2, size, size);
     ctx.fillStyle = color;
 
     const textWidth = ctx.measureText(text).width;
     const textX = position.x - textWidth / 2;
-    const textZ = position.z + 20;
+    const textZ = position.y + 20;
     ctx.fillText(text, textX, textZ);
 }
 
-function drawBox(x, y, w, h, color, ctx: CanvasRenderingContext2D) {
+function drawBox(position: Vector3, w, h, color, ctx: CanvasRenderingContext2D) {
     ctx.strokeStyle = color;
-    ctx.lineWidth = 2; // Set the line width, adjust as needed
+    ctx.lineWidth = 2;
 
-    ctx.strokeRect(x - w/2, y-h, w, h);
+    ctx.strokeRect(position.x, position.y, w, h);
+}
+
+function drawCircle(position: Vector3, w, h, color, ctx: CanvasRenderingContext2D) {
+    
 }

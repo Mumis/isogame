@@ -19,28 +19,32 @@ export class RenderSystem extends System {
         this.bufferCanvas.width = game.ctx.canvas.clientWidth;
         this.bufferCtx.imageSmoothingEnabled = false;
 
+        const screenPos = Game.worldPosToScreenPos(game.cameraPosition);
+
         // Calculate the camera offsets to center the view
-        const cameraX = game.cameraPosition.x - this.bufferCanvas.width / 2;
-        const cameraY = game.cameraPosition.z - this.bufferCanvas.height / 2;
+        const cameraX = screenPos.x - this.bufferCanvas.width / 2;
+        const cameraY = screenPos.y - this.bufferCanvas.height / 2;
 
         // Set up the transformation: translate to the camera position
         this.bufferCtx.transform(1, 0, 0, 1, -cameraX, -cameraY);
 
-        const orderedFilteredEntities = [...this.filteredEntities, ...game.tiles].sort((a, b) => {
+        const orderedFilteredEntities = [...this.filteredEntities].sort((a, b) => {
             // Compare by zIndex first
             if (a.zIndex !== b.zIndex) {
                 return a.zIndex - b.zIndex; // Ascending by zIndex (use b.zIndex - a.zIndex for descending)
             }
-            // If zIndex is the same, compare by y position (position[1])
-            return a.position.z - b.position.z; // Ascending by y position
+            // If zIndex is the same, compare by z position in descending order
+            if (b.position.z !== a.position.z) {
+                return b.position.z - a.position.z;
+            }
+            // If z position is the same, compare by x position in descending order
+            return b.position.x - a.position.x;
         });
 
-        // Draw all filtered entities
         for (const entity of orderedFilteredEntities) {
             entity.draw(this.bufferCtx, dt);
         }
 
-        // Clear the main canvas and draw the buffer canvas onto it
         game.ctx.clearRect(0, 0, game.ctx.canvas.clientWidth, game.ctx.canvas.clientHeight);
         game.ctx.drawImage(this.bufferCanvas, 0, 0);
     }

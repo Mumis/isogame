@@ -19,12 +19,14 @@ export class VelocitySystem extends System {
             const physical = entity.getComponent(Physical);
             
             let extraX = 0;
+            let extraY = 0;
             let extraZ = 0;
 
             if (entity.hasComponent(Movable)) {
                 const movable = entity.getComponent(Movable);
 
                 extraX += movable.vector.x;
+                extraY += movable.vector.y;
                 extraZ += movable.vector.z;
 
                 if (movable.vector.x !== 0 || movable.vector.z !== 0) {
@@ -34,7 +36,7 @@ export class VelocitySystem extends System {
 
             const x = extraX + physical.velocity.x;
             const z = extraZ + physical.velocity.z;
-            const y = physical.velocity.y;        
+            const y = extraY + physical.velocity.y;        
 
             entity.position = entity.position.add(new Vector3(x, y, z).multiplyScalar(dt));
         }
