@@ -4,6 +4,7 @@ import { Physical } from '../../../Components/Physical';
 import { Movable } from '../../../Components/Movable';
 import { Stats } from '../../../Components/Stats';
 import { BoxHitbox, Hitbox } from '../../../Components/Hitbox';
+import { Vector3 } from '../../../Util/Vector3';
 
 export class Slime extends Entity {
     public frameHeight: number = 32;
@@ -12,30 +13,17 @@ export class Slime extends Entity {
     public height: number = 64;
 
     constructor(
-        position: [number, number, number],
+        position = new Vector3(0, 0, 0),
     ) {
         super();
 
         this.addComponents(
             new Stats(),
-            new Physical(
-                [0, 0, 0], 
-                1, 
-                1
-            ),
+            new Physical(),
             new Hitbox(
                 new BoxHitbox(this.width, this.height / 1.5, this.height / 1.5),
             ),
-            new Movable(
-                [0, 0, 0],
-                true,
-                {
-                    originalPosition: position,
-                    radius: 500,
-                    waitDuration: 5,    
-                    moveLength: 250
-                }
-            )
+            new Movable()
         );
 
         this.image.src = SlimeBlue;

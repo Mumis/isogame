@@ -7,7 +7,13 @@
 </head>
 
 <body>
-	<canvas id="game"></canvas>
+    <div style="position: fixed; top: 0; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 16px;">
+        <button id="game-view">Switch to game view</button>
+        <button id="editor-view">Switch to editor view</button>
+    </div>
+
+	<canvas id="canvas"></canvas>
+
 	<script src="index.ts"></script>
 </body>
 

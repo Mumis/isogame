@@ -17,7 +17,7 @@ export class StateSystem extends System {
 			if (entity.hasComponent(Movable)) {
                 const movable = entity.getComponent(Movable);
 
-                if (movable.vector[0] !== 0 || movable.vector[1] !== 0) {
+                if (movable.vector.length() > 0) {
                     entity.setState(EntityState.WALKING);
 
                     return;

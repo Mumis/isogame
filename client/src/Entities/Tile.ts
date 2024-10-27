@@ -1,36 +1,33 @@
-import { Entity } from './Entity';
 import GrassTile from '../../assets/tiles/grass-iso.png';
 import { Game } from '../Game/Game';
+import { Vector3 } from '../Util/Vector3';
 
 
-export class Tile extends Entity {
-    public frameHeight: number = Game.TILE_SIZE / 2;
-    public frameWidth: number = Game.TILE_SIZE;
-    public width: number = Game.TILE_SIZE;
-    public height: number = Game.TILE_SIZE / 2;
-    public spriteSheet: HTMLImageElement = new Image();
+export class Tile {
+    public image: HTMLImageElement = new Image();
 
     constructor(
-            public position: [number, number, number],
-            public zIndex: number
-        ) {
-        super();
-        
-        this.castShadow = false;
+        public position: Vector3, 
+        public zIndex: number
+    ) {
         this.image.src = GrassTile;
     }
 
     draw(ctx: CanvasRenderingContext2D): void {
-        var tileColumnOffset = 64; // pixels
-        var tileRowOffset = 32; // pixels
-
-        var originX = this.width / 2 - 18 * tileColumnOffset / 2;
-        var originY = this.height / 2;
-
-        var offX = this.position[0] * tileColumnOffset / 2 + this.position[1] * tileColumnOffset / 2 + originX;
-        var offY = this.position[1] * tileRowOffset / 2 - this.position[0] * tileRowOffset / 2 + originY;
+        const worldPos = Game.worldPosToScreenPos(this.position)
 
         // Draw the isometric tile image
-        ctx.drawImage(this.image, offX, offY, tileColumnOffset, tileRowOffset);
+        ctx.drawImage(
+            this.image, 
+            worldPos.x, 
+            worldPos.z, 
+            Game.TILE_SIZE_WIDTH, 
+            Game.TILE_SIZE_DEPTH
+        );
+
+        const text = `[${this.position.x}, ${this.position.y}, ${this.position.z}]`;
+        const textX = worldPos.x + Game.TILE_SIZE_WIDTH/2 - 9;
+        const textZ = worldPos.z + Game.TILE_SIZE_DEPTH/2 + 3;
+        ctx.fillText(text, textX, textZ);
     }
 }

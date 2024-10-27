@@ -14,8 +14,7 @@ export class CameraSystem extends System {
 
     public update(dt: number, game: Game): void {
         for (const entity of this.filteredEntities) {
-            game.cameraPos[0] = entity.position[0];
-            game.cameraPos[1] = entity.position[1];
+            game.cameraPosition = entity.position;
         }
     }
 }

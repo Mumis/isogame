@@ -1,3 +1,4 @@
+import { Vector3 } from '../Util/Vector3';
 import { Component } from './Component';
 
 export class Movable extends Component {
@@ -6,9 +7,9 @@ export class Movable extends Component {
     // public jumping = false;
 
     public constructor(
-        public vector: [number, number, number] = [0, 0, 0],
+        public vector: Vector3 = new Vector3(0, 0, 0),
         public patrolling: boolean = false,
-        public patrollingSettings: {
+        public patrollingSettings?: {
             originalPosition: [number, number, number],
             radius: number
         }

@@ -16,13 +16,13 @@ export class GravitySystem extends System {
         for (const entity of this.filteredEntities) {
             const physical = entity.getComponent(Physical);
 
-            if (entity.position[2] > 0) {
+            if (entity.position.y > 0) {
                 // Apply gravity to vertical velocity
-                physical.velocity[2] -= physical.acceleration * physical.mass;
+                physical.velocity.y -= physical.acceleration * physical.mass;
             } else {
                 // Ensure the entity doesn't go below the ground
-                entity.position[2] = 0;
-                physical.velocity[2] = 0;
+                entity.position.y = 0;
+                physical.velocity.y = 0;
             }
         }
     }

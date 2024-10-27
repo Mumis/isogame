@@ -18,11 +18,7 @@ export class Player extends Entity {
 
         this.addComponents(
             new Stats(),
-            new Physical(
-                [0, 0, 0], 
-                1, 
-                1
-            ),
+            new Physical(),
             new Hitbox(
                 new BoxHitbox(this.width, this.height / 1.5, this.height / 1.5),
             ),

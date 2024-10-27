@@ -4,6 +4,7 @@ import { Stats } from '../Components/Stats';
 import { Entity, EntityDirection, EntityState } from '../Entities/Entity';    
 import { Player } from '../Entities/Player';
 import { Game } from '../Game/Game';
+import { Vector3 } from '../Util/Vector3';
 import { System } from './System';
 
 export class MovementSystem extends System {
@@ -58,17 +59,16 @@ export class MovementSystem extends System {
             let y = 0;
             let x = 0;
             let z = 0;
-            let multiplierY = 1;
-            let multiplierX = 1;
+            let multiplier = 1;
 
             // MOVE UP
             if (this.inputs.has('w')) {
-                y -= 1;
+                z -= 1;
             }
 
             // MOVE DOWN
             if (this.inputs.has('s')) {
-                y += 1;
+                z += 1;
             }
 
             // MOVE RIGHT
@@ -83,23 +83,21 @@ export class MovementSystem extends System {
 
             // JUMP
             if (this.inputs.has('v')) {
-                z += 100;
+                y += 1;
             }
 
             // SPRINT
             if (this.inputs.has('Shift')) {
                 if (stats && stats?.stamina.current > 0) {
-                    multiplierX = 5;
-                    multiplierY = 5;
+                    // multiplierX = 5;
+                    // multiplierY = 5;
                     stats.stamina.current -= 1;
                 }
             }
 
             // You can only jump & move while being on ground
-            if (entity.position[2] === 0) {
-                movable.vector[0] = x * speed * multiplierX;
-                movable.vector[1] = y * speed * multiplierY;
-                physical.velocity[2] += z;
+            if (entity.position.y === 0) {
+                movable.vector = new Vector3(x, y, z).normalize().multiplyScalar(speed).multiplyScalar(multiplier);
             }
         }
     }

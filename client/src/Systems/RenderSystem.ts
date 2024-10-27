@@ -20,19 +20,19 @@ export class RenderSystem extends System {
         this.bufferCtx.imageSmoothingEnabled = false;
 
         // Calculate the camera offsets to center the view
-        const cameraX = game.cameraPos[0] - this.bufferCanvas.width / 2;
-        const cameraY = game.cameraPos[1] - this.bufferCanvas.height / 2;
+        const cameraX = game.cameraPosition.x - this.bufferCanvas.width / 2;
+        const cameraY = game.cameraPosition.z - this.bufferCanvas.height / 2;
 
         // Set up the transformation: translate to the camera position
         this.bufferCtx.transform(1, 0, 0, 1, -cameraX, -cameraY);
 
-        const orderedFilteredEntities = this.filteredEntities.sort((a, b) => {
+        const orderedFilteredEntities = [...this.filteredEntities, ...game.tiles].sort((a, b) => {
             // Compare by zIndex first
             if (a.zIndex !== b.zIndex) {
                 return a.zIndex - b.zIndex; // Ascending by zIndex (use b.zIndex - a.zIndex for descending)
             }
             // If zIndex is the same, compare by y position (position[1])
-            return a.position[1] - b.position[1]; // Ascending by y position
+            return a.position.z - b.position.z; // Ascending by y position
         });
 
         // Draw all filtered entities

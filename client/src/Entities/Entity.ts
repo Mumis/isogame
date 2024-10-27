@@ -1,4 +1,6 @@
 import { Component } from '../Components/Component';
+import { Game } from '../Game/Game';
+import { Vector3 } from '../Util/Vector3';
 
 export type Constructor<T> = new (...args: any[]) => T
 
@@ -30,7 +32,8 @@ export class Entity {
     private step: number = 0;
     private timeElapsed: number = 0;  // Time passed since last frame update
 
-    public position: [number, number, number] = [0, 0, 0]; // [x, y, z]
+    public position: Vector3 = new Vector3(0, 0, 0); // [x, y, z]
+    
     public zIndex: number = 0;
     public direction: EntityDirection = EntityDirection.S;
     public state: EntityState = EntityState.IDLING;
@@ -98,9 +101,9 @@ export class Entity {
 
     public draw(ctx: CanvasRenderingContext2D, dt: number) {
         // Calculate position on the canvas
-        const positionX = this.position[0] - (this.width / 2); // Center the sprite horizontally
-        const positionY = this.position[1] - this.height;     // Top-left corner of the sprite
-
+        // const positionX = Game.getWorldPosition(position.x, position.y) - (this.width / 2);
+        // const positionY = (this.position[1] * Game.TILE_SIZE_HEIGHT / 2) - (this.position[0] * Game.TILE_SIZE_HEIGHT / 2) - this.height;
+        
         // if (this.castShadow) {
         //     const shadowX = positionX - (this.width / 2);
         //     const shadowY = positionY + this.height;
@@ -118,11 +121,11 @@ export class Entity {
         
         if (!animationData) {
             ctx.drawImage(
-                this.image,                           // The sprite sheet image
-                positionX,                                          // X position to draw on the canvas (already centered)
-                positionY,                                          // Y position to draw on the canvas (already adjusted)
-                this.width + 0.5, //this is temp fix for tiles                                 // Width to draw on the canvas
-                this.height + 0.5  //this is temp fix for tiles                                // Height to draw on the canvas
+                this.image,
+                this.position.y,
+                this.position.z,
+                this.width,
+                this.height
             );
 
             return;
@@ -134,32 +137,32 @@ export class Entity {
         const sourceX = (xIndex + this.step) * this.frameWidth;
         const sourceY = yIndex * this.frameHeight;
         
-        const scale = 1 + this.position[2] / 300;
-        const offsetY = -this.position[2]; // Move up by max 50 units
+        // const scale = 1 + this.position[2] / 300;
+        // const offsetY = -this.position[2]; // Move up by max 50 units
     
         // Save the current transformation matrix
         ctx.save();
     
-        // Apply transformations
-        ctx.translate(positionX + this.width / 2, positionY + this.height / 2);
-        ctx.scale(scale, scale);
-        ctx.translate(-this.width / 2, -this.height / 2 + offsetY);
+        // // Apply transformations
+        // ctx.translate(positionX + this.width / 2, positionY + this.height / 2);
+        // ctx.scale(scale, scale);
+        // ctx.translate(-this.width / 2, -this.height / 2 + offsetY);
     
         // Draw the specific frame from the sprite sheet
         ctx.drawImage(
-            this.image,                           // The sprite sheet image
-            sourceX,                                    // The X coordinate on the sprite sheet
-            sourceY,                                    // The Y coordinate on the sprite sheet
-            this.frameWidth,                            // Width of a single frame
-            this.frameHeight,                           // Height of a single frame
-            0,                                          // X position to draw on the canvas (already centered)
-            0,                                          // Y position to draw on the canvas (already adjusted)
-            this.width,                                 // Width to draw on the canvas
-            this.height                                 // Height to draw on the canvas
+            this.image,
+            sourceX,
+            sourceY,
+            this.frameWidth,
+            this.frameHeight,
+            this.position.x - this.width / 2,
+            this.position.z + this.height / 2,
+            this.width,
+            this.height
         );
         
-        // Restore the transformation matrix
-        ctx.restore();
+        // // Restore the transformation matrix
+        // ctx.restore();
         
         // Accumulate the time elapsed
         this.timeElapsed += dt;

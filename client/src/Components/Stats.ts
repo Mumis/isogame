@@ -21,8 +21,8 @@ export class Stats extends Component {
         },
 
         public speed = {
-            max: 1,
-            current: 1,
+            max: 100,
+            current: 100,
             regen: 1
         }
     ) {

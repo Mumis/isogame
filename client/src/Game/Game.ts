@@ -15,6 +15,7 @@ import { HudSystem } from '../Systems/HudSystem';
 import { DebugSystem } from '../Systems/DebugSystem';
 import { GravitySystem } from '../Systems/GravitySystem';
 import { Tile } from '../Entities/Tile';
+import { Vector3 } from '../Util/Vector3';
 
 export class Game {
     private static readonly TIME_STEP = 1 / 144;
@@ -22,7 +23,8 @@ export class Game {
     private static readonly FPS_DECAY = 0.1;
     private static readonly FPS_CAP = -1; // -1 === uncapped
 
-    public static readonly TILE_SIZE = 64;
+    public static readonly TILE_SIZE_WIDTH = 64;
+    public static readonly TILE_SIZE_DEPTH = 32;
 
     private readonly map = [
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -43,17 +45,20 @@ export class Game {
     public readonly events = new EventBus();
     public fps = 1 / Game.TIME_STEP;
     
-    private readonly entities: Entity[] = [
-        new Player(),
-        new Slime([0, 0, 0]),
-        ...this.map.map((row, y) => 
+    public readonly tiles: Tile[] = [
+        ...this.map.map((row, z) => 
             row.map(
                 (tile, x) => new Tile(
-                    [x, y, 1],
+                    new Vector3(x, 0, z),
                     -1
                 )
             )
         ).flat()
+    ]
+
+    private readonly entities: Entity[] = [
+        new Player(),
+        new Slime(),
     ];
     
     private readonly systems: System[] = [
@@ -78,7 +83,7 @@ export class Game {
     public height: number = window.innerHeight;
     public width: number = window.innerWidth;
     
-    public cameraPos = [0, 0];
+    public cameraPosition: Vector3 = new Vector3();
 
     public constructor(
         public readonly ctx: CanvasRenderingContext2D,
@@ -204,5 +209,32 @@ export class Game {
 
         this.ctx.canvas.width = this.width;
         this.ctx.canvas.height = this.height;
+    }
+
+
+    public static screenPosToWorldPos(position: Vector3): Vector3 {
+        const x = (position.x / Game.TILE_SIZE_WIDTH + position.z / Game.TILE_SIZE_DEPTH);
+        const z = (position.x / Game.TILE_SIZE_WIDTH - position.z / Game.TILE_SIZE_DEPTH);
+        const y = position.y;
+    
+        return new Vector3(x, y, z);
+    }
+    
+
+    public static worldPosToScreenPos(position): Vector3 {
+        const worldX = (position.x * Game.TILE_SIZE_WIDTH / 2) + (position.z * Game.TILE_SIZE_WIDTH / 2);
+        const worldZ = (position.x * Game.TILE_SIZE_DEPTH / 2) - (position.z * Game.TILE_SIZE_DEPTH / 2);
+        const worldY = position.y;
+
+        return new Vector3(worldX, worldY, worldZ);
+    }
+
+    public positionInCamera(position: Vector3): Vector3 {
+        
+        return position.subtract(new Vector3(
+            this.cameraPosition.x - this.ctx.canvas.width / 2,
+            this.cameraPosition.y,
+            this.cameraPosition.z - this.ctx.canvas.width / 2
+        ));
     }
 }

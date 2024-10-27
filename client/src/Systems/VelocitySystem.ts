@@ -2,6 +2,7 @@ import { Movable } from '../Components/Movable';
 import { Physical } from '../Components/Physical';
 import { Entity, EntityDirection } from '../Entities/Entity';    
 import { Game } from '../Game/Game';
+import { Vector3 } from '../Util/Vector3';
 import { System } from './System';
 
 export class VelocitySystem extends System {
@@ -18,34 +19,32 @@ export class VelocitySystem extends System {
             const physical = entity.getComponent(Physical);
             
             let extraX = 0;
-            let extraY = 0;
+            let extraZ = 0;
 
             if (entity.hasComponent(Movable)) {
                 const movable = entity.getComponent(Movable);
 
-                extraX += movable.vector[0];
-                extraY += movable.vector[1];
+                extraX += movable.vector.x;
+                extraZ += movable.vector.z;
 
-                if (movable.vector[0] !== 0 || movable.vector[1] !== 0) {
-                    entity.direction = getDirection(movable.vector[0], movable.vector[1]);
+                if (movable.vector.x !== 0 || movable.vector.z !== 0) {
+                    entity.direction = getDirection(movable.vector.x, movable.vector.z);
                 }
             }
 
-            const x = extraX + physical.velocity[0] * dt;
-            const y = extraY + physical.velocity[1] * dt;
-            const z = physical.velocity[2] * dt;
-            
-            entity.position[0] += x;   
-            entity.position[1] += y;
-            entity.position[2] += z;
+            const x = extraX + physical.velocity.x;
+            const z = extraZ + physical.velocity.z;
+            const y = physical.velocity.y;        
+
+            entity.position = entity.position.add(new Vector3(x, y, z).multiplyScalar(dt));
         }
     }
 }
 
-function getDirection(x: number, y: number) {
-    if (Math.abs(x) > Math.abs(y)) {
+function getDirection(x: number, z: number) {
+    if (Math.abs(x) > Math.abs(z)) {
         return x > 0 ? EntityDirection.E : EntityDirection.W;
     } else {
-        return y > 0 ? EntityDirection.S : EntityDirection.N;
+        return z > 0 ? EntityDirection.S : EntityDirection.N;
     }
 }
