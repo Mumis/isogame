@@ -1,7 +1,6 @@
 import { Movable } from '../Components/Movable';
-import { Physical } from '../Components/Physical';
 import { Stats } from '../Components/Stats';
-import { Entity, EntityDirection, EntityState } from '../Entities/Entity';    
+import { Entity } from '../Entities/Entity';    
 import { Player } from '../Entities/Player';
 import { Game } from '../Game/Game';
 import { Vector3 } from '../Util/Vector3';
@@ -18,24 +17,24 @@ export class MovementSystem extends System {
     }
 
     public onKeyDown(event: KeyboardEvent) {
-        switch (event.key) {
-            case 'w': this.inputs.add('w'); break;
-            case 'a': this.inputs.add('a'); break;
-            case 's': this.inputs.add('s'); break;
-            case 'd': this.inputs.add('d'); break;
-            case 'Shift': this.inputs.add('Shift'); break;
-            case 'v': this.inputs.add('v'); break;
+        switch (event.code) {
+            case 'KeyW': this.inputs.add('up'); break;
+            case 'KeyS': this.inputs.add('down'); break;
+            case 'KeyA': this.inputs.add('left'); break;
+            case 'KeyD': this.inputs.add('right'); break;
+            case 'ShiftLeft': this.inputs.add('sprint'); break;
+            case 'Space': this.inputs.add('jump'); break;
         }
     }
 
     public onKeyUp(event: KeyboardEvent) {
-        switch (event.key) {
-            case 'w': this.inputs.delete('w'); break;
-            case 'a': this.inputs.delete('a'); break;
-            case 's': this.inputs.delete('s'); break;
-            case 'd': this.inputs.delete('d'); break;
-            case 'Shift': this.inputs.delete('Shift'); break;
-            case 'v': this.inputs.delete('v'); break;
+        switch (event.code) {
+            case 'KeyW': this.inputs.delete('up'); break;
+            case 'KeyS': this.inputs.delete('down'); break;
+            case 'KeyA': this.inputs.delete('left'); break;
+            case 'KeyD': this.inputs.delete('right'); break;
+            case 'ShiftLeft': this.inputs.delete('sprint'); break;
+            case 'Space': this.inputs.delete('jump'); break;
         }
     }
     
@@ -56,25 +55,25 @@ export class MovementSystem extends System {
             let multiplier = 1;
 
             // MOVE UP
-            if (this.inputs.has('w')) {
+            if (this.inputs.has('up')) {
                 z += 1;
                 x -= 1;
             }
 
             // MOVE DOWN
-            if (this.inputs.has('s')) {
+            if (this.inputs.has('down')) {
                 z -= 1;
                 x += 1;
             }
 
             // MOVE RIGHT
-            if (this.inputs.has('a')) {
+            if (this.inputs.has('left')) {
                 x -= 1;
                 z -= 1;
             }
 
             // MOVE LEFT
-            if (this.inputs.has('d')) {
+            if (this.inputs.has('right')) {
                 x += 1;
                 z += 1;
             }
@@ -82,19 +81,19 @@ export class MovementSystem extends System {
             // You can only jump & move while being on ground
             if (entity.position.y === 0) {
                 // JUMP
-                if (this.inputs.has('v')) {
-                    y += 100;
+                if (this.inputs.has('jump')) {
+                    y += 200;
                 }
     
                 // SPRINT
                 if (
                     (
-                        this.inputs.has('w') ||
-                        this.inputs.has('s') ||
-                        this.inputs.has('a') ||
-                        this.inputs.has('d')
+                        this.inputs.has('up') ||
+                        this.inputs.has('down') ||
+                        this.inputs.has('left') ||
+                        this.inputs.has('right')
                     ) 
-                    && this.inputs.has('Shift')
+                    && this.inputs.has('sprint')
                 ) {
                     if (stats && stats?.stamina.current > 0) {
                         multiplier = 2.2;

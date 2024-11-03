@@ -9,6 +9,8 @@
     "three": "^0.168.0"
   },
   "devDependencies": {
+    "@parcel/transformer-raw": "^2.12.0",
+    "@types/node": "^22.8.6",
     "sass": "^1.26.10",
     "typescript": "^3.9.7"
   },

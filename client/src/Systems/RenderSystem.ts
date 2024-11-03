@@ -37,8 +37,8 @@ export class RenderSystem extends System {
             if (b.position.z !== a.position.z) {
                 return b.position.z - a.position.z;
             }
-            // If z position is the same, compare by x position in descending order
-            return b.position.x - a.position.x;
+            // If z position is the same, compare by x position in asc order
+            return a.position.x - b.position.x;
         });
 
         for (const entity of orderedFilteredEntities) {

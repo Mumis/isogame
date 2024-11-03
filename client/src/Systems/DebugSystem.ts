@@ -69,7 +69,7 @@ export class DebugSystem extends System {
                     `${entity.position.floor().toString()}`, 
                     'yellow', 
                     this.bufferCtx,
-                    10
+                    2
                 );
             }
         }

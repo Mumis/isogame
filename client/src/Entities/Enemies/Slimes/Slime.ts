@@ -13,7 +13,7 @@ export class Slime extends Entity {
     public height: number = 64;
 
     constructor(
-        position = new Vector3(0, 0, 0),
+        public position = new Vector3(0, 0, 0),
     ) {
         super();
 

@@ -30,8 +30,8 @@ export type SpriteSheetMap = {
 
 export class Entity {
     private readonly components: Component[] = [];
-    private step: number = 0;
-    private timeElapsed: number = 0;  // Time passed since last frame update
+    public step: number = 0;
+    public timeElapsed: number = 0;  // Time passed since last frame update
 
     public position: Vector3 = new Vector3(0, 0, 0); // [x, y, z]
     
@@ -104,7 +104,7 @@ export class Entity {
         const screenPos = Game.worldPosToScreenPos(this.position);
         const extraSize = this.position.y * 8;
 
-        const x = screenPos.x - this.width/2 - extraSize / 2;
+        const x = screenPos.x - this.width / 2 - extraSize / 2;
         const y = screenPos.y - this.height - extraSize / 2;
         const width = this.width + extraSize;
         const height = this.height + extraSize

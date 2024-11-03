@@ -16,6 +16,7 @@ import { DebugSystem } from '../Systems/DebugSystem';
 import { GravitySystem } from '../Systems/GravitySystem';
 import { Tile } from '../Entities/Tile';
 import { Vector3 } from '../Util/Vector3';
+import { EntityChanged } from '../Event/EntityChanged';
 
 export class Game {
     private static readonly TIME_STEP = 1 / 144;
@@ -23,21 +24,22 @@ export class Game {
     private static readonly FPS_DECAY = 0.1;
     private static readonly FPS_CAP = -1; // -1 === uncapped
 
-    public static readonly TILE_SIZE_WIDTH = 64;
-    public static readonly TILE_SIZE_DEPTH = 32;
+    public static readonly TILE_SIZE_WIDTH = 32;
+    public static readonly TILE_SIZE_DEPTH = 16;
+    public static readonly TILE_OFFSET = 16;
 
     private readonly map = [
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 1, 1, 2, 1, 19, 20, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 9, 8, 7, 3, 18, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 10, 6, 4, 1, 17, 1, 1, 1, 1, 20, 1, 1, 1, 1, 1, 1, 1],
+        [1, 11, 5, 1, 16, 30, 29, 28, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 12, 1, 1, 15, 1, 1, 27, 1, 1, 30, 1, 1, 1, 1, 1, 1, 1],
+        [1, 1, 1, 1, 14, 1, 1, 26, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 1, 1, 1, 1, 1, 25, 1, 1, 1, 17, 1, 1, 1, 1, 1, 1, 1],
+        [1, 1, 1, 1, 1, 1, 22, 1, 1, 16, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 1, 1, 1, 1, 1, 16, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 1, 1, 1, 1, 1, 1, 12, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
     ]
@@ -46,8 +48,7 @@ export class Game {
     public fps = 1 / Game.TIME_STEP;
 
     private readonly entities: Entity[] = [
-        new Player(),
-        new Slime(),
+        new Player()
     ];
     
     private readonly systems: System[] = [
@@ -62,7 +63,7 @@ export class Game {
         new CameraSystem(),
         new RenderSystem(),
         new HudSystem(),
-        //new DebugSystem(),
+        new DebugSystem(),
     ];
     
     private animationFrameId: number | null = null;
@@ -82,14 +83,29 @@ export class Game {
         ctx.canvas.height = this.height;
 
         // Load map
-        this.map.forEach((row, z) => 
+        this.map.forEach((row, x) => 
             row.forEach(
-                (tile, x) => this.entities.push(new Tile(
+                (tile, z) => this.entities.push(new Tile(
+                    tile,
                     new Vector3(x, 0, z),
                     -1
                 ))
             )
-        )
+        );
+
+        // for (let i = 0; i < 1000; i++) {
+        //     this.entities.push(new Slime(new Vector3(Math.random() * 20, 0, Math.random() * 20)))
+        // }
+
+        // window.addEventListener('click', (event) => {
+        //     const mouseX = event.clientX; // Get the X coordinate of the mouse click
+        //     const mouseY = event.clientY; // Get the Y coordinate of the mouse click
+        
+        //     // Convert the screen position to world position
+        //     const worldPosition = Game.screenPosToWorldPos(new Vector3(mouseX, mouseY, 0));
+        
+        //     console.log(`World Position: ${worldPosition.floor()}`);
+        // });
 
         addEventListener('resize', this.onResize.bind(this));
     }
@@ -138,6 +154,18 @@ export class Game {
                 for (const system of this.systems) {
                     if (system.appliesTo(event.entity)) {
                         system.addEntity(event.entity)
+                    }
+                }
+            });
+
+            this.events.register(EntityChanged, (event: EntityChanged) => {
+                for (const system of this.systems) {
+                    if (system.hasEntity(event.entity) && !system.appliesTo(event.entity)) {
+                        system.removeEntity(event.entity)
+                    }
+
+                    if (!system.hasEntity(event.entity) && system.appliesTo(event.entity)) {
+                        system.addEntity(event.entity);
                     }
                 }
             });
@@ -218,13 +246,68 @@ export class Game {
     //     return new Vector3(x, y, z);
     // }
     
-
     public static worldPosToScreenPos(position: Vector3): Vector3 {
-        const x = (position.x * Game.TILE_SIZE_WIDTH / 2) + (position.z * Game.TILE_SIZE_WIDTH / 2);
+        const x = (position.x * Game.TILE_SIZE_WIDTH / 2) + (position.z * Game.TILE_SIZE_WIDTH / 2) - Game.TILE_OFFSET;
         const y = (position.x * Game.TILE_SIZE_DEPTH / 2) - (position.z * Game.TILE_SIZE_DEPTH / 2) - (position.y * Game.TILE_SIZE_DEPTH);
-        const z = (position.x * Game.TILE_SIZE_DEPTH / 2) - (position.z * Game.TILE_SIZE_DEPTH / 2);
+        const z = (position.x * Game.TILE_SIZE_DEPTH / 2) - (position.z * Game.TILE_SIZE_DEPTH / 2) - Game.TILE_OFFSET;
+
         return new Vector3(x, y, z);
     }
+
+    public static screenPosToWorldPos(screenPos: Vector3): Vector3 {
+        const TILE_WIDTH = Game.TILE_SIZE_WIDTH;   // Width of tile
+        const TILE_DEPTH = Game.TILE_SIZE_DEPTH;   // Depth of tile
+
+        const x = ((screenPos.x + Game.TILE_OFFSET) / (TILE_WIDTH / 2)) - ((screenPos.y + Game.TILE_OFFSET) / (TILE_DEPTH / 2));
+        const z = ((screenPos.x + Game.TILE_OFFSET) / (TILE_WIDTH / 2)) + ((screenPos.y + Game.TILE_OFFSET) / (TILE_DEPTH / 2));
+
+        const y = (screenPos.y + (TILE_DEPTH / 2)) / TILE_DEPTH; // Adjust y based on depth
+
+        return new Vector3(x, y, z);
+    }
+
+    // public static worldPosToScreenPos(pt:Vector3): Vector3 {
+    //     var tempPt:Vector3 = new Vector3(0, 0, 0);
+    //     tempPt.x = (2 * pt.z + pt.x) / 2;
+    //     tempPt.z = (2 * pt.z - pt.x) / 2;
+    //     return(tempPt);
+    //   }
+
+    //   public static screenPosToWorldPos(pt:Vector3): Vector3 {
+    //     var tempPt:Vector3 = new Vector3(0,0,0);
+    //     tempPt.x = pt.x - pt.z;
+    //     tempPt.z = (pt.x + pt.z) / 2;
+    //     return(tempPt);
+    // }
+
+    // public static isoTo2D(pt: Vector3): Vector3 {
+    //     var tempPt: Vector3 = new Vector3(0, 0, 0);
+    //     tempPt.x = (2 * pt.z + pt.x) / 2;
+    //     tempPt.z = (2 * pt.z - pt.x) / 2;
+    //     return(tempPt);
+    // }
+
+    // public static twoDToIso(pt:Vector3): Vector3 {
+    //     var tempPt: Vector3 = new Vector3(0, 0, 0);
+    //     tempPt.x = pt.x - pt.z;
+    //     tempPt.z = (pt.x + pt.z) / 2;
+    //     return(tempPt);
+    // }
+
+    // public static getTileCoordinates(pt: Vector3): Vector3 {
+    //     var tempPt: Vector3 = new Vector3(0, 0, 0);
+    //     tempPt.x = Math.floor(pt.x / Game.TILE_SIZE_WIDTH);
+    //     tempPt.y = Math.floor(pt.z / Game.TILE_SIZE_DEPTH);
+    //     return(tempPt);
+    // }
+
+    // public static worldPosToScreenPos(pt: Vector3): Vector3 {
+    //     var tempPt: Vector3 = new Vector3(0, 0, 0);
+    //     tempPt.x = Math.floor(pt.x / Game.TILE_SIZE_WIDTH);
+    //     tempPt.y = Math.floor(pt.z / Game.TILE_SIZE_DEPTH);
+    //     return(tempPt);
+    //   }
+    
 
     // public positionInCamera(position: Vector3): Vector3 {
         

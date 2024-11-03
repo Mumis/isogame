@@ -13,6 +13,10 @@ export class System {
         this.filteredEntities.splice(index, 1);
     }
 
+    public hasEntity(entity: Entity) {
+        return this.filteredEntities.includes(entity);
+    }
+
     public appliesTo(entity: Entity): boolean {
         return false;
     }
