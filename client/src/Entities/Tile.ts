@@ -74,7 +74,7 @@ export class Tile extends Entity {
     public frameHeight: number = 32;
     public frameWidth: number = 32;
     public width: number = Game.TILE_SIZE_WIDTH;
-    public height: number = 32;
+    public height: number = Game.TILE_SIZE_WIDTH;
 
     constructor(
         public tileNum: number,
@@ -87,10 +87,10 @@ export class Tile extends Entity {
         this.image.src = imageMap[this.tileNum];
     }
 
-    public draw(ctx: CanvasRenderingContext2D, dt: number) {
+    public draw(ctx: CanvasRenderingContext2D, dt: number, opacity: number) {
         const screenPos = Game.worldPosToScreenPos(this.position);
         const x = screenPos.x;
-        const y = screenPos.z;
+        const y = screenPos.y - this.height / 2;
         const width = this.width;
         const height = this.height;
 
@@ -111,7 +111,9 @@ export class Tile extends Entity {
         const sourceY = yIndex * this.frameHeight;
     
         // Save the current transformation matrix
-        ctx.save();    
+        ctx.save();      
+
+        ctx.globalAlpha = opacity;
 
         // Draw the specific frame from the sprite sheet
         ctx.drawImage(

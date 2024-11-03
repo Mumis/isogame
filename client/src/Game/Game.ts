@@ -7,7 +7,7 @@ import { EventBus } from '../Event/EventBus';
 import { CameraSystem } from '../Systems/CameraSystem';
 import { MovementSystem } from '../Systems/MovementSystem';
 import { RandomMovementSystem } from '../Systems/RandomMovementSystem';
-import { RenderSystem } from '../Systems/RenderSystem';
+import { DrawSystem } from '../Systems/DrawSystem';
 import { StateSystem } from '../Systems/StateSystem';
 import { System } from '../Systems/System';
 import { VelocitySystem } from '../Systems/VelocitySystem';
@@ -17,6 +17,7 @@ import { GravitySystem } from '../Systems/GravitySystem';
 import { Tile } from '../Entities/Tile';
 import { Vector3 } from '../Util/Vector3';
 import { EntityChanged } from '../Event/EntityChanged';
+import { FogOfWarSystem } from '../Systems/FogOfWarSystem';
 
 export class Game {
     private static readonly TIME_STEP = 1 / 144;
@@ -24,8 +25,8 @@ export class Game {
     private static readonly FPS_DECAY = 0.1;
     private static readonly FPS_CAP = -1; // -1 === uncapped
 
-    public static readonly TILE_SIZE_WIDTH = 32;
-    public static readonly TILE_SIZE_DEPTH = 16;
+    public static readonly TILE_SIZE_WIDTH = 64;
+    public static readonly TILE_SIZE_DEPTH = 32;
     public static readonly TILE_OFFSET = 16;
 
     private readonly map = [
@@ -44,11 +45,12 @@ export class Game {
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
     ]
 
-    public readonly events = new EventBus();
+    static readonly events = new EventBus();
     public fps = 1 / Game.TIME_STEP;
 
     private readonly entities: Entity[] = [
-        new Player()
+        new Player(),
+        new Slime()
     ];
     
     private readonly systems: System[] = [
@@ -59,11 +61,12 @@ export class Game {
         
         // Try to not adjust these
         new GravitySystem(),
+        new FogOfWarSystem(),
         new StateSystem(),
         new CameraSystem(),
-        new RenderSystem(),
+        new DrawSystem(),
         new HudSystem(),
-        new DebugSystem(),
+        // new DebugSystem(),
     ];
     
     private animationFrameId: number | null = null;
@@ -93,6 +96,14 @@ export class Game {
             )
         );
 
+        for (let i = 1; i < 10; i++) {
+            this.entities.push(new Tile(
+                1,
+                new Vector3(0, i, 0),
+                0
+            ))
+        }
+
         // for (let i = 0; i < 1000; i++) {
         //     this.entities.push(new Slime(new Vector3(Math.random() * 20, 0, Math.random() * 20)))
         // }
@@ -117,7 +128,7 @@ export class Game {
 
     public addEntity(entity: Entity): void {
         this.entities.push(entity);
-        this.events.emit(new EntityAdded(entity));
+        Game.events.emit(new EntityAdded(entity));
     }
 
     public removeEntity(entity: Entity): void {
@@ -125,7 +136,7 @@ export class Game {
 
         if (index >= 0) {
             this.entities.splice(index, 1);
-            this.events.emit(new EntityRemoved(entity));
+            Game.events.emit(new EntityRemoved(entity));
         }
     }
 
@@ -142,7 +153,7 @@ export class Game {
                 }
             }
 
-            this.events.register(EntityRemoved, (event: EntityRemoved) => {
+            Game.events.register(EntityRemoved, (event: EntityRemoved) => {
                 for (const system of this.systems) {
                     if (system.appliesTo(event.entity)) {
                         system.removeEntity(event.entity)
@@ -150,7 +161,7 @@ export class Game {
                 }
             });
 
-            this.events.register(EntityAdded, (event: EntityAdded) => {
+            Game.events.register(EntityAdded, (event: EntityAdded) => {
                 for (const system of this.systems) {
                     if (system.appliesTo(event.entity)) {
                         system.addEntity(event.entity)
@@ -158,7 +169,7 @@ export class Game {
                 }
             });
 
-            this.events.register(EntityChanged, (event: EntityChanged) => {
+            Game.events.register(EntityChanged, (event: EntityChanged) => {
                 for (const system of this.systems) {
                     if (system.hasEntity(event.entity) && !system.appliesTo(event.entity)) {
                         system.removeEntity(event.entity)
@@ -247,11 +258,10 @@ export class Game {
     // }
     
     public static worldPosToScreenPos(position: Vector3): Vector3 {
-        const x = (position.x * Game.TILE_SIZE_WIDTH / 2) + (position.z * Game.TILE_SIZE_WIDTH / 2) - Game.TILE_OFFSET;
-        const y = (position.x * Game.TILE_SIZE_DEPTH / 2) - (position.z * Game.TILE_SIZE_DEPTH / 2) - (position.y * Game.TILE_SIZE_DEPTH);
-        const z = (position.x * Game.TILE_SIZE_DEPTH / 2) - (position.z * Game.TILE_SIZE_DEPTH / 2) - Game.TILE_OFFSET;
+        const x = (position.x * Game.TILE_SIZE_WIDTH / 2) + (position.z * Game.TILE_SIZE_WIDTH / 2);
+        const y = (position.x * (Game.TILE_SIZE_DEPTH) / 2) - (position.z * (Game.TILE_SIZE_DEPTH) / 2) - (position.y * Game.TILE_SIZE_DEPTH);
 
-        return new Vector3(x, y, z);
+        return new Vector3(x, y, 0);
     }
 
     public static screenPosToWorldPos(screenPos: Vector3): Vector3 {

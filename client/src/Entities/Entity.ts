@@ -1,4 +1,5 @@
 import { Component } from '../Components/Component';
+import { EntityChanged } from '../Event/EntityChanged';
 import { Game } from '../Game/Game';
 import { Vector3 } from '../Util/Vector3';
 
@@ -60,14 +61,27 @@ export class Entity {
 		)
 	}
 
+    public removeComponent(component: Component): void {
+        const index = this.components.indexOf(component);
+
+        if (index >= 0) {
+            this.components.splice(index, 1);
+            Game.events.emit(new EntityChanged(this));
+        }
+    }
+
     public addComponent(component: Component): void {
         this.components.push(component);
+
+        Game.events.emit(new EntityChanged(this));
     }
 
     public addComponents(...components: Component[]): void {
         for (const component of components) {
             this.addComponent(component);
         }
+
+        Game.events.emit(new EntityChanged(this));
     }
 
     public hasComponent<T extends Component>(type: T): boolean {
@@ -100,21 +114,23 @@ export class Entity {
         }
     }
 
-    public draw(ctx: CanvasRenderingContext2D, dt: number) {
-        const screenPos = Game.worldPosToScreenPos(this.position);
+    public draw(ctx: CanvasRenderingContext2D, dt: number, opacity: number) {
         const extraSize = this.position.y * 8;
-
+        
+        const screenPos = Game.worldPosToScreenPos(this.position);
         const x = screenPos.x - this.width / 2 - extraSize / 2;
         const y = screenPos.y - this.height - extraSize / 2;
         const width = this.width + extraSize;
-        const height = this.height + extraSize
+        const height = this.height + extraSize;
         
         if (this.castShadow) {
-            const shadowX = screenPos.x;
-            // Lol hack
-            const shadowY = screenPos.z - (this.height - extraSize) / 5;
+            // Floor
+            const shadowScreenPos = Game.worldPosToScreenPos(new Vector3(this.position.x, 0, this.position.z));
 
-            const shadowHeight = (this.height - extraSize) / 5;
+            const shadowX = shadowScreenPos.x;
+            const shadowY = shadowScreenPos.y;
+
+            const shadowHeight = (this.height - extraSize) / 6;
             const shadowWidth = (this.width - extraSize) / 3;
 
             ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
@@ -140,6 +156,8 @@ export class Entity {
     
         // Save the current transformation matrix
         ctx.save();    
+
+        ctx.globalAlpha = opacity;
 
         // Draw the specific frame from the sprite sheet
         ctx.drawImage(

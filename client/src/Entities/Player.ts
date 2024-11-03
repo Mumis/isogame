@@ -6,6 +6,7 @@ import { Physical } from '../Components/Physical';
 import { Movable } from '../Components/Movable';
 import { Stats } from '../Components/Stats';
 import { BoxHitbox, Hitbox } from '../Components/Hitbox';
+import { Drawable } from '../Components/Drawable';
 
 export class Player extends Entity {
     public frameHeight: number = 32;
@@ -19,12 +20,13 @@ export class Player extends Entity {
         super();
 
         this.addComponents(
+            new Drawable(),
             new Stats(),
             new Physical(),
             new Hitbox(
                 new BoxHitbox(this.width, this.height, this.height),
             ),
-            new Movable()
+            new Movable(),
         );
 
         this.image.src = PlayerSprite;
