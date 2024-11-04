@@ -32,15 +32,19 @@ export class DrawSystem extends System {
         const orderedFilteredEntities = [...this.filteredEntities].sort((a, b) => {
             const screenPosA = Game.worldPosToScreenPos(a.position);
             const screenPosB = Game.worldPosToScreenPos(b.position);
+
+            // console.log(a.position.z, b.position.z)
             
             // Compare by zIndex first
             if (a.zIndex !== b.zIndex) {
                 return a.zIndex - b.zIndex; // Ascending by zIndex (use b.zIndex - a.zIndex for descending)
             }
+
             // If zIndex is the same, compare by z position in descending order
-            if (b.position.z !== a.position.z) {
+            if (b.position.floor().z !== a.position.floor().z) {
                 return b.position.z - a.position.z;
             }
+
             // If z position is the same, compare by x position in asc order
             return a.position.x - b.position.x;
         });

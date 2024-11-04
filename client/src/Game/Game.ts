@@ -66,7 +66,7 @@ export class Game {
         new CameraSystem(),
         new DrawSystem(),
         new HudSystem(),
-        // new DebugSystem(),
+        new DebugSystem(),
     ];
     
     private animationFrameId: number | null = null;
@@ -103,6 +103,12 @@ export class Game {
                 0
             ))
         }
+
+        this.entities.push(new Tile(
+            10,
+            new Vector3(5, 1, 5),
+            0
+        ))
 
         // for (let i = 0; i < 1000; i++) {
         //     this.entities.push(new Slime(new Vector3(Math.random() * 20, 0, Math.random() * 20)))
