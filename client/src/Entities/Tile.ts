@@ -34,6 +34,7 @@ import tile27 from '../../assets/tiles/tile_27.png';
 import tile28 from '../../assets/tiles/tile_28.png';
 import tile29 from '../../assets/tiles/tile_29.png';
 import tile30 from '../../assets/tiles/tile_30.png';
+import { Collidable, CubeHitbox } from '../Components/Collidable';
 
 // Map each tile number to its corresponding image
 const imageMap: { [key: number]: string } = {
@@ -85,12 +86,12 @@ export class Tile extends Entity {
 
         // Access the image URL based on tileNum
         this.image.src = imageMap[this.tileNum];
+
+        //this.addComponent(new Collidable(new CubeHitbox(1, 1, 0.5, this.position), true));
     }
 
     public draw(ctx: CanvasRenderingContext2D, dt: number, opacity: number) {
-        const screenPos = Game.worldPosToScreenPos(this.position);
-        const x = screenPos.x;
-        const y = screenPos.y - this.height / 2;
+        const screenPos = Game.worldPosToScreenPos(this.position, -this.width / 2, this.height / -2);
         const width = this.width;
         const height = this.height;
 
@@ -122,8 +123,8 @@ export class Tile extends Entity {
             sourceY,  
             this.frameWidth,
             this.frameHeight,
-            x,
-            y,
+            screenPos.x,    
+            screenPos.y,
             width,
             height
         );

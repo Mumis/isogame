@@ -114,14 +114,10 @@ export class Entity {
         }
     }
 
-    public draw(ctx: CanvasRenderingContext2D, dt: number, opacity: number) {
-        const extraSize = this.position.y * 8;
-        
-        const screenPos = Game.worldPosToScreenPos(this.position);
-        const x = screenPos.x - this.width / 2 - extraSize / 2;
-        const y = screenPos.y - this.height - extraSize / 2;
-        const width = this.width + extraSize;
-        const height = this.height + extraSize;
+    public draw(ctx: CanvasRenderingContext2D, dt: number, opacity: number) {        
+        const screenPos = Game.worldPosToScreenPos(this.position, -this.width / 2, -this.height);
+        const width = this.width;
+        const height = this.height;
         
         if (this.castShadow) {
             // Floor
@@ -130,8 +126,8 @@ export class Entity {
             const shadowX = shadowScreenPos.x;
             const shadowY = shadowScreenPos.y;
 
-            const shadowHeight = (this.height - extraSize) / 6;
-            const shadowWidth = (this.width - extraSize) / 3;
+            const shadowHeight = (this.height) / 6;
+            const shadowWidth = (this.width) / 3;
 
             ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
             ctx.ellipse(shadowX, shadowY, shadowWidth, shadowHeight, Math.PI, 0, 4 * Math.PI);
@@ -166,8 +162,8 @@ export class Entity {
             sourceY,  
             this.frameWidth,
             this.frameHeight,
-            x,
-            y,
+            screenPos.x,
+            screenPos.y,
             width,
             height
         );

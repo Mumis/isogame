@@ -38,7 +38,7 @@ export class VelocitySystem extends System {
             const z = extraZ + physical.velocity.z;
             const y = extraY + physical.velocity.y;        
 
-            entity.position = entity.position.add(new Vector3(x, y, z).multiplyScalar(dt));
+            entity.position.add(new Vector3(x, y, z).multiplyScalar(dt));
         }
     }
 }

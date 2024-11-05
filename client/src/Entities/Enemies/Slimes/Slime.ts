@@ -3,7 +3,7 @@ import SlimeBlue from './slime-blue.png';
 import { Physical } from '../../../Components/Physical';
 import { Movable } from '../../../Components/Movable';
 import { Stats } from '../../../Components/Stats';
-import { BoxHitbox, Hitbox } from '../../../Components/Hitbox';
+import { Collidable, CubeHitbox } from '../../../Components/Collidable';
 import { Vector3 } from '../../../Util/Vector3';
 
 export class Slime extends Entity {
@@ -13,16 +13,14 @@ export class Slime extends Entity {
     public height: number = 64;
 
     constructor(
-        public position = new Vector3(0, 0, 0),
+        public position = new Vector3(0, 0, 0)
     ) {
         super();
 
         this.addComponents(
             new Stats(),
             new Physical(),
-            new Hitbox(
-                new BoxHitbox(this.width, this.height, this.height),
-            ),
+            new Collidable(new CubeHitbox(1, 1, 1, this.position)),
             new Movable()
         );
 

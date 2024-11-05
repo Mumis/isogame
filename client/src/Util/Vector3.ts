@@ -10,8 +10,10 @@ export class Vector3 {
     }
 
     // Add two vectors
-    public add(v: Vector3): Vector3 {
-        return new Vector3(this.x + v.x, this.y + v.y, this.z + v.z);
+    public add(v: Vector3) {
+        this.x += v.x;
+        this.y += v.y;
+        this.z += v.z;
     }
 
     // Subtract two vectors
@@ -73,8 +75,8 @@ export class Vector3 {
     }
 
     // Linear interpolation between two vectors
-    public lerp(v: Vector3, t: number): Vector3 {
-        return this.add(v.subtract(this).multiplyScalar(t));
+    public lerp(v: Vector3, t: number) {
+        this.add(v.subtract(this).multiplyScalar(t));
     }
 
     // Create a copy of the vector

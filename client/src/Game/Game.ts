@@ -18,6 +18,8 @@ import { Tile } from '../Entities/Tile';
 import { Vector3 } from '../Util/Vector3';
 import { EntityChanged } from '../Event/EntityChanged';
 import { FogOfWarSystem } from '../Systems/FogOfWarSystem';
+import { Collidable, CubeHitbox } from '../Components/Collidable';
+import { CollisionSystem } from '../Systems/CollisionSystem';
 
 export class Game {
     private static readonly TIME_STEP = 1 / 144;
@@ -49,8 +51,7 @@ export class Game {
     public fps = 1 / Game.TIME_STEP;
 
     private readonly entities: Entity[] = [
-        new Player(),
-        new Slime()
+        new Player()
     ];
     
     private readonly systems: System[] = [
@@ -61,12 +62,13 @@ export class Game {
         
         // Try to not adjust these
         new GravitySystem(),
+        //new CollisionSystem(),
         new FogOfWarSystem(),
         new StateSystem(),
         new CameraSystem(),
         new DrawSystem(),
         new HudSystem(),
-        new DebugSystem(),
+        //new DebugSystem(),
     ];
     
     private animationFrameId: number | null = null;
@@ -88,41 +90,46 @@ export class Game {
         // Load map
         this.map.forEach((row, x) => 
             row.forEach(
-                (tile, z) => this.entities.push(new Tile(
-                    tile,
+                (tile, z) => {
+                    this.entities.push(new Tile(
+                    Math.floor(Math.random() * 30),
                     new Vector3(x, 0, z),
-                    -1
-                ))
+                    -1));
+                }
             )
         );
 
-        for (let i = 1; i < 10; i++) {
-            this.entities.push(new Tile(
-                1,
-                new Vector3(0, i, 0),
-                0
-            ))
-        }
-
-        this.entities.push(new Tile(
-            10,
-            new Vector3(5, 1, 5),
-            0
-        ))
-
-        // for (let i = 0; i < 1000; i++) {
-        //     this.entities.push(new Slime(new Vector3(Math.random() * 20, 0, Math.random() * 20)))
+        // for (let i = 1; i < 10; i++) {
+        //     this.entities.push(new Tile(
+        //         1,
+        //         new Vector3(0, i, 0),
+        //         0
+        //     ))
         // }
 
-        // window.addEventListener('click', (event) => {
-        //     const mouseX = event.clientX; // Get the X coordinate of the mouse click
-        //     const mouseY = event.clientY; // Get the Y coordinate of the mouse click
+        const tile = new Tile(
+            10,
+            new Vector3(5, 0.5, 5),
+            0
+        );
+
+        tile.addComponent(new Collidable(new CubeHitbox(1, 1, 0.5, tile.position), true));
+
+        this.entities.push(tile)
+
+        // for (let i = 0; i < 10000; i++) {
+        //     this.entities.push(new Slime(new Vector3(Math.random() * 50, 0, Math.random() * 50)))
+        // }
+
+        window.addEventListener('click', (event) => {
+            const mouseX = event.clientX; // Get the X coordinate of the mouse click
+            const mouseY = event.clientY; // Get the Y coordinate of the mouse click
         
-        //     // Convert the screen position to world position
-        //     const worldPosition = Game.screenPosToWorldPos(new Vector3(mouseX, mouseY, 0));
+            // Convert the screen position to world position
+            const worldPosition = Game.screenPosToWorldPos(new Vector3(mouseX, mouseY, 0));
         
-        //     console.log(`World Position: ${worldPosition.floor()}`);
-        // });
+            console.log(`World Position: ${worldPosition.floor()}`);
+        });
 
         addEventListener('resize', this.onResize.bind(this));
     }
@@ -263,9 +270,9 @@ export class Game {
     //     return new Vector3(x, y, z);
     // }
     
-    public static worldPosToScreenPos(position: Vector3): Vector3 {
-        const x = (position.x * Game.TILE_SIZE_WIDTH / 2) + (position.z * Game.TILE_SIZE_WIDTH / 2);
-        const y = (position.x * (Game.TILE_SIZE_DEPTH) / 2) - (position.z * (Game.TILE_SIZE_DEPTH) / 2) - (position.y * Game.TILE_SIZE_DEPTH);
+    public static worldPosToScreenPos(position: Vector3, offsetX: number = 0, offsetY: number = 0): Vector3 {
+        const x = (position.x * Game.TILE_SIZE_WIDTH / 2) + (position.z * Game.TILE_SIZE_WIDTH / 2) + offsetX;
+        const y = (position.x * (Game.TILE_SIZE_DEPTH) / 2) - (position.z * (Game.TILE_SIZE_DEPTH) / 2) - (position.y * Game.TILE_SIZE_DEPTH) + offsetY;
 
         return new Vector3(x, y, 0);
     }
@@ -274,8 +281,8 @@ export class Game {
         const TILE_WIDTH = Game.TILE_SIZE_WIDTH;   // Width of tile
         const TILE_DEPTH = Game.TILE_SIZE_DEPTH;   // Depth of tile
 
-        const x = ((screenPos.x + Game.TILE_OFFSET) / (TILE_WIDTH / 2)) - ((screenPos.y + Game.TILE_OFFSET) / (TILE_DEPTH / 2));
-        const z = ((screenPos.x + Game.TILE_OFFSET) / (TILE_WIDTH / 2)) + ((screenPos.y + Game.TILE_OFFSET) / (TILE_DEPTH / 2));
+        const x = ((screenPos.x) / (TILE_WIDTH / 2)) - ((screenPos.y) / (TILE_DEPTH / 2));
+        const z = ((screenPos.x) / (TILE_WIDTH / 2)) + ((screenPos.y) / (TILE_DEPTH / 2));
 
         const y = (screenPos.y + (TILE_DEPTH / 2)) / TILE_DEPTH; // Adjust y based on depth
 

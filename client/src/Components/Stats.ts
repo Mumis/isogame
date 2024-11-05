@@ -4,7 +4,7 @@ export class Stats extends Component {
     public constructor(
         public health = {
             max: 100,
-            current: 100,
+            current: 150,
             regen: 1
         },
 
@@ -16,7 +16,7 @@ export class Stats extends Component {
 
         public stamina = {
             max: 100,
-            current: 100,
+            current: 1000000,
             regen: 1
         },
 

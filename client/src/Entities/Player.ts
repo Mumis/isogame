@@ -5,7 +5,7 @@ import PlayerSprite from './Enemies/Slimes/slime-blue.png';
 import { Physical } from '../Components/Physical';
 import { Movable } from '../Components/Movable';
 import { Stats } from '../Components/Stats';
-import { BoxHitbox, Hitbox } from '../Components/Hitbox';
+import { Collidable, CubeHitbox } from '../Components/Collidable';
 import { Drawable } from '../Components/Drawable';
 
 export class Player extends Entity {
@@ -23,9 +23,7 @@ export class Player extends Entity {
             new Drawable(),
             new Stats(),
             new Physical(),
-            new Hitbox(
-                new BoxHitbox(this.width, this.height, this.height),
-            ),
+            new Collidable(new CubeHitbox(0.5, 0.5, 0.5, this.position)),
             new Movable(),
         );
 

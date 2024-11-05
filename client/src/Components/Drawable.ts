@@ -6,7 +6,7 @@ export class Drawable extends Component {
     public fadeInElapsed = 0;
     public fadeOut = false;
     public fadeOutElapsed = 0;
-    public readonly fadeDuration = 0.5; //seconds
+    public readonly fadeDuration = 0.1; //seconds
 
     public constructor(public fadeIn: boolean = false) {
         super();

@@ -1,4 +1,5 @@
-import { BoxHitbox, Hitbox } from '../Components/Hitbox';
+import { Drawable } from '../Components/Drawable';
+import { Collidable, CubeHitbox } from '../Components/Collidable';
 import { Entity } from '../Entities/Entity';    
 import { Tile } from '../Entities/Tile';
 import { Game } from '../Game/Game';
@@ -28,7 +29,7 @@ export class DebugSystem extends System {
     }
     
     public appliesTo(entity: Entity): boolean {
-        return true;
+        return entity.hasComponent(Drawable);
     }
 
     public update(dt: number, game: Game): void {
@@ -46,16 +47,15 @@ export class DebugSystem extends System {
         this.bufferCtx.transform(1, 0, 0, 1, -cameraX, -cameraY);
 
         for (const entity of this.filteredEntities) {
-            const screenPos = Game.worldPosToScreenPos(entity.position);
+            if (entity.hasComponent(Collidable)) {
+                const hitbox = entity.getComponent(Collidable);
 
-            if (entity.hasComponent(Hitbox)) {
-                const hitbox = entity.getComponent(Hitbox);
-
-                if (hitbox.box instanceof BoxHitbox) {
-                    drawBox(
-                        new Vector3(screenPos.x - entity.width/2, screenPos.y - entity.height, 0), 
-                        hitbox.box.width, 
-                        hitbox.box.depth, 
+                if (hitbox.box instanceof CubeHitbox) {
+                    drawCube(
+                        Game.worldPosToScreenPos(hitbox.box.position), 
+                        (hitbox.box.width * Game.TILE_SIZE_WIDTH) / 2, 
+                        (hitbox.box.depth * Game.TILE_SIZE_WIDTH) / 2, 
+                        hitbox.box.height * Game.TILE_SIZE_DEPTH,
                         'green', 
                         this.bufferCtx
                     );
@@ -63,9 +63,9 @@ export class DebugSystem extends System {
 
             }
 
-            if (!(entity instanceof Tile)) {
+            if (true) {
                 drawPoint(
-                    screenPos,
+                    Game.worldPosToScreenPos(entity.position),
                     `${entity.position.floor().toString()}`, 
                     'yellow', 
                     this.bufferCtx,
@@ -89,10 +89,10 @@ function drawPoint(position: Vector3, text: string, color: string, ctx: CanvasRe
     ctx.fillRect(position.x - size/2, position.y - size/2, size, size);
     ctx.fillStyle = color;
 
-    const textWidth = ctx.measureText(text).width;
-    const textX = position.x - textWidth / 2;
-    const textZ = position.y + 20;
-    ctx.fillText(text, textX, textZ);
+    // const textWidth = ctx.measureText(text).width;
+    // const textX = position.x - textWidth / 2;
+    // const textZ = position.y + 20;
+    // ctx.fillText(text, textX, textZ);
 }
 
 function drawBox(position: Vector3, w, h, color, ctx: CanvasRenderingContext2D) {
@@ -100,6 +100,42 @@ function drawBox(position: Vector3, w, h, color, ctx: CanvasRenderingContext2D) 
     ctx.lineWidth = 2;
 
     ctx.strokeRect(position.x, position.y, w, h);
+}
+
+// Draw a cube to the specified specs
+function drawCube(position: Vector3, width, depth, height, color, ctx: CanvasRenderingContext2D) {
+    const x = position.x;
+    const y = position.y;
+
+    // const width = w / 2;
+    // const depth = d / 2;
+
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x - width, y - width * 0.5);
+    ctx.lineTo(x - width, y - height - width * 0.5);
+    ctx.lineTo(x, y - height * 1);
+    ctx.closePath();
+    ctx.strokeStyle = color;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + depth, y - depth * 0.5);
+    ctx.lineTo(x + depth, y - height - depth * 0.5);
+    ctx.lineTo(x, y - height * 1);
+    ctx.closePath();
+    ctx.strokeStyle = color;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(x, y - height);
+    ctx.lineTo(x - depth, y - height - depth * 0.5);
+    ctx.lineTo(x - depth + depth, y - height - (depth * 0.5 + depth * 0.5));
+    ctx.lineTo(x + depth, y - height - depth * 0.5);
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.stroke();
 }
 
 function drawCircle(position: Vector3, w, h, color, ctx: CanvasRenderingContext2D) {
