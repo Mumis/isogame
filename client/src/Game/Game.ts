@@ -51,7 +51,8 @@ export class Game {
     public fps = 1 / Game.TIME_STEP;
 
     private readonly entities: Entity[] = [
-        new Player()
+        new Player(),
+        new Slime()
     ];
     
     private readonly systems: System[] = [
@@ -69,7 +70,7 @@ export class Game {
         new CameraSystem(),
         new DrawSystem(),
         new HudSystem(),
-        //new DebugSystem(),
+        new DebugSystem(),
     ];
     
     private animationFrameId: number | null = null;
@@ -110,11 +111,11 @@ export class Game {
 
         const tile = new Tile(
             10,
-            new Vector3(5, 0, 5),
+            new Vector3(5, 1, 5),
             0
         );
 
-        tile.addComponent(new Collidable(new CubeHitbox(1, 1, 0.5, tile.position), true));
+        tile.addComponent(new Collidable(new CubeHitbox(tile, 1, 1, 0.5), true));
 
         this.entities.push(tile)
 

@@ -1,12 +1,13 @@
+import { Entity } from '../Entities/Entity';
 import { Vector3 } from '../Util/Vector3';
 import { Component } from './Component';
 
 export class CubeHitbox {
     constructor(
+        public attached: Entity,
         private width: number, 
         private depth: number, 
         private height: number, 
-        private position: Vector3,
         private offsetX: number = 0,
         private offsetY: number = 0,
         private offsetZ: number = 0
@@ -14,12 +15,12 @@ export class CubeHitbox {
 
     public getBoundingBox() {
         return {
-            minX: this.position.x + this.offsetX - this.width / 2,
-            maxX: this.position.x + this.offsetX + this.width / 2,
-            minY: this.position.y + this.offsetY - this.height,
-            maxY: this.position.y + this.offsetY,
-            minZ: this.position.z + this.offsetZ - this.depth / 2,
-            maxZ: this.position.z + this.offsetZ + this.depth / 2
+            minX: this.attached.position.x + this.offsetX - this.width / 2,
+            maxX: this.attached.position.x + this.offsetX + this.width / 2,
+            minY: this.attached.position.y + this.offsetY - this.height,
+            maxY: this.attached.position.y + this.offsetY,
+            minZ: this.attached.position.z + this.offsetZ - this.depth / 2,
+            maxZ: this.attached.position.z + this.offsetZ + this.depth / 2
         }
     }
 
@@ -42,14 +43,29 @@ export class CubeHitbox {
         const box1 = this.getBoundingBox();
         const box2 = b.getBoundingBox();
 
-        return (
-            box1.minX <= box2.maxX &&
-            box1.maxX >= box2.minX &&
-            box1.minY <= box2.maxY &&
-            box1.maxY >= box2.minY &&
-            box1.minZ <= box2.maxZ &&
-            box1.maxZ >= box2.minZ
-        );
+        // Calculate the intersection boundaries along each axis
+        const minX = Math.max(box1.minX, box2.minX);
+        const maxX = Math.min(box1.maxX, box2.maxX);
+        const minY = Math.max(box1.minY, box2.minY);
+        const maxY = Math.min(box1.maxY, box2.maxY);
+        const minZ = Math.max(box1.minZ, box2.minZ);
+        const maxZ = Math.min(box1.maxZ, box2.maxZ);
+
+        // Check if there is an actual overlap along each axis
+        if (minX < maxX && minY < maxY && minZ < maxZ) {
+            // If there is an overlap, return the intersection box's min and max bounds
+            return {
+                minX: minX,
+                maxX: maxX,
+                minY: minY,
+                maxY: maxY,
+                minZ: minZ,
+                maxZ: maxZ
+            };
+        } else {
+            // If there is no overlap, return null or a suitable representation of "no intersection"
+            return null;
+        }
     }
 
     public overlapAABB(b: CubeHitbox) {

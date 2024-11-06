@@ -121,10 +121,10 @@ export class Entity {
         
         // if (this.castShadow) {
         //     // Floor
-        //     const shadowScreenPos = Game.twoDToIso(new Vector3(this.position.x, 0, this.position.z));
+        //     const shadowScreenPos = Game.worldPosToScreenPos(new Vector3(this.position.x, 0, this.position.z));
 
         //     const shadowX = shadowScreenPos.x;
-        //     const shadowY = shadowScreenPos.y;
+        //     const shadowY = shadowScreenPos.y + this.height / 2;
 
         //     const shadowHeight = (this.height) / 6;
         //     const shadowWidth = (this.width) / 3;
@@ -162,8 +162,8 @@ export class Entity {
             sourceY,  
             this.frameWidth,
             this.frameHeight,
-            screenPos.x - Game.TILE_SIZE_WIDTH / 2,
-            screenPos.y - Game.TILE_SIZE_DEPTH,
+            screenPos.x - this.width / 2,
+            screenPos.y - this.height / 2,
             width,
             height
         );

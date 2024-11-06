@@ -30,27 +30,28 @@ export class DrawSystem extends System {
         this.bufferCtx.transform(1, 0, 0, 1, -cameraX, -cameraY);
 
         const orderedFilteredEntities = [...this.filteredEntities].sort((a, b) => { 
-            const aFloored = a.position.floor();
-            const bFloored = b.position.floor();
+            const aFloored = a.position;
+            const bFloored = b.position;
             
-            // Compare by zIndex first
+            // 1. Compare by zIndex (ascending)
             if (a.zIndex !== b.zIndex) {
-                return a.zIndex - b.zIndex; // Ascending by zIndex (use b.zIndex - a.zIndex for descending)
+                return a.zIndex - b.zIndex; 
             }
-
-            // if (aFloored.x === bFloored.x && aFloored.z === bFloored.z) {
-            //     console.log()
-            //     return a.position.y - b.position.y
-            // }
-
-            // If zIndex is the same, compare by z position in descending order
-            if (b.position.floor().z !== a.position.floor().z) {
-                return b.position.z - a.position.z;
+        
+            // 2. If zIndex is the same, compare by z position (descending, to draw further objects first)
+            if (bFloored.z !== aFloored.z) {
+                return bFloored.z - aFloored.z;
             }
-
-            // If z position is the same, compare by x position in asc order
-            return a.position.x - b.position.x;
+        
+            // 3. If z position is the same, compare by y position (ascending, so lower objects are drawn first)
+            if (aFloored.y !== bFloored.y) {
+                return aFloored.y - bFloored.y;
+            }
+        
+            // 4. If both z and y positions are the same, compare by x position (ascending)
+            return aFloored.x - bFloored.x;
         });
+        
 
         for (const entity of orderedFilteredEntities) {
             const drawable = entity.getComponent(Drawable);

@@ -47,7 +47,7 @@ export class DebugSystem extends System {
         this.bufferCtx.transform(1, 0, 0, 1, -cameraX, -cameraY);
 
         for (const entity of this.filteredEntities) {
-            if (entity.hasComponent(Collidable)) {
+            if (entity.hasComponent(Collidable) && !(entity instanceof Tile)) {
                 const hitbox = entity.getComponent(Collidable);
 
                 if (hitbox.box instanceof CubeHitbox) {
@@ -56,15 +56,15 @@ export class DebugSystem extends System {
 
             }
 
-            if (true) {
-                drawPoint(
-                    Game.worldPosToScreenPos(entity.position),
-                    `${entity.position.floor().toString()}`, 
-                    'yellow', 
-                    this.bufferCtx,
-                    2
-                );
-            }
+            // if (true) {
+            //     drawPoint(
+            //         Game.worldPosToScreenPos(entity.position),
+            //         `${entity.position.floor().toString()}`, 
+            //         'yellow', 
+            //         this.bufferCtx,
+            //         2
+            //     );
+            // }
         }
 
         // Show FPS

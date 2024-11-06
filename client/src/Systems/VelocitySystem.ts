@@ -25,20 +25,22 @@ export class VelocitySystem extends System {
             if (entity.hasComponent(Movable)) {
                 const movable = entity.getComponent(Movable);
 
-                extraX += movable.vector.x;
-                extraY += movable.vector.y;
-                extraZ += movable.vector.z;
+                extraX += movable.velocity.x;
+                extraY += movable.velocity.y;
+                extraZ += movable.velocity.z;
 
-                if (movable.vector.x !== 0 || movable.vector.z !== 0) {
-                    entity.direction = getDirection(movable.vector.x, movable.vector.z);
+                if (movable.velocity.x !== 0 || movable.velocity.z !== 0) {
+                    entity.direction = getDirection(movable.velocity.x, movable.velocity.z);
                 }
             }
 
             const x = extraX + physical.velocity.x;
             const z = extraZ + physical.velocity.z;
-            const y = extraY + physical.velocity.y;        
+            const y = extraY + physical.velocity.y;  
+            
+            console.log(physical.velocity.y)
 
-            entity.position.add(new Vector3(x, y, z).multiplyScalar(dt));
+            entity.position = entity.position.add(new Vector3(x, y, z).multiplyScalar(dt));
         }
     }
 }

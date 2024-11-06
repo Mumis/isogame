@@ -1,4 +1,5 @@
 import { Movable } from '../Components/Movable';
+import { Physical } from '../Components/Physical';
 import { Stats } from '../Components/Stats';
 import { Entity } from '../Entities/Entity';    
 import { Player } from '../Entities/Player';
@@ -39,12 +40,13 @@ export class MovementSystem extends System {
     }
     
     public appliesTo(entity: Entity): boolean {
-        return entity instanceof Player && entity.hasComponent(Movable);
+        return entity instanceof Player && entity.hasComponent(Movable) && entity.hasComponent(Physical);
     }
 
     public update(dt: number, game: Game): void {
         for (const entity of this.filteredEntities) {
             const movable = entity.getComponent(Movable);
+            const physical = entity.getComponent(Physical);
             const stats = entity.hasComponent(Stats) ? entity.getComponent(Stats) : null;
 
             const speed = stats ? stats.speed.current : 1;
@@ -78,11 +80,10 @@ export class MovementSystem extends System {
                 z += 1;
             }
     
-            // You can only jump & move while being on ground
-                // JUMP
-                if (this.inputs.has('jump')) {
-                    y += 200;
-                }
+            // JUMP
+            if (this.inputs.has('jump') && physical.velocity.y === 0) {
+                y += 1;
+            }
     
                 // SPRINT
                 if (
@@ -100,9 +101,13 @@ export class MovementSystem extends System {
                     }
                 }
 
-                const xzVector = new Vector3(x, 0, z).normalize().divideScalar(32).multiplyScalar(speed).multiplyScalar(multiplier);
-                const yVector = new Vector3(0, y, 0).divideScalar(32);
-                movable.vector = new Vector3(xzVector.x, yVector.y, xzVector.z);
+                movable.velocity = new Vector3(
+                    x / Game.TILE_SIZE_WIDTH * speed * multiplier, 
+                    0, 
+                    z / Game.TILE_SIZE_WIDTH * speed * multiplier
+                );
+
+                physical.velocity = physical.velocity.add(new Vector3(0, y * 16, 0));
         }
     }
 }

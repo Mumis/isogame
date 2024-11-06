@@ -86,7 +86,7 @@ export class Tile extends Entity {
 
         // Access the image URL based on tileNum
         this.image.src = imageMap[this.tileNum];
-        this.addComponent(new Collidable(new CubeHitbox(1, 1, 0.5, this.position, 0), true));
+        this.addComponent(new Collidable(new CubeHitbox(this, 1, 1, 0.5, 0), true));
     }
 
     // public draw(ctx: CanvasRenderingContext2D, dt: number, opacity: number) {

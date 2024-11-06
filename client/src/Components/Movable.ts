@@ -7,7 +7,7 @@ export class Movable extends Component {
     // public jumping = false;
 
     public constructor(
-        public vector: Vector3 = new Vector3(0, 0, 0),
+        public velocity: Vector3 = new Vector3(0, 0, 0),
         public patrolling: boolean = false,
         public patrollingSettings?: {
             originalPosition: [number, number, number],

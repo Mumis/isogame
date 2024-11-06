@@ -1,6 +1,7 @@
 import { Physical } from '../Components/Physical';
 import { Entity } from '../Entities/Entity';    
 import { Game } from '../Game/Game';
+import { Vector3 } from '../Util/Vector3';
 import { System } from './System';
 
 export class GravitySystem extends System {
@@ -17,7 +18,7 @@ export class GravitySystem extends System {
             const physical = entity.getComponent(Physical);
 
             // Apply gravity to vertical velocity
-            physical.velocity.y -= (physical.acceleration * physical.mass) / 100;
+            physical.velocity = physical.velocity.subtract(new Vector3(0, physical.acceleration * physical.mass, 0));
         }
     }
 }

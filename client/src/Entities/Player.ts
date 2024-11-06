@@ -14,8 +14,8 @@ import { Vector3 } from '../Util/Vector3';
 export class Player extends Entity {
     public frameHeight: number = 32;
     public frameWidth: number = 32;
-    public width: number = Game.TILE_SIZE_WIDTH;
-    public height: number = Game.TILE_SIZE_WIDTH;
+    public width: number = 32;
+    public height: number = 32;
     public position: Vector3 = new Vector3(3, 3, 3);
     public castShadow: boolean = true;
 
@@ -26,11 +26,11 @@ export class Player extends Entity {
             new Drawable(),
             new Stats(),
             new Physical(),
-            new Collidable(new CubeHitbox(1, 1, 0.5, this.position, 0, 0, 0)),
+            new Collidable(new CubeHitbox(this, 0.5, 0.5, 0.5, 0, 0, 0)),
             new Movable(),
         );
 
-        this.image.src = tile30;
+        this.image.src = PlayerSprite;
 
         // this.spirteSheetMap = [
         //     {
@@ -99,71 +99,71 @@ export class Player extends Entity {
         //     },
         // ];
 
-        // this.spirteSheetMap = [
-        //     {
-        //         state: EntityState.WALKING,
-        //         direction: EntityDirection.S,
-        //         speed: 0.8,
-        //         steps: 6,
-        //         xIndex: 0,
-        //         yIndex: 0
-        //     },
-        //     {
-        //         state: EntityState.WALKING,
-        //         direction: EntityDirection.E,
-        //         speed: 0.8,
-        //         steps: 6,
-        //         xIndex: 0,
-        //         yIndex: 0
-        //     },
-        //     {
-        //         state: EntityState.WALKING,
-        //         direction: EntityDirection.W,
-        //         speed: 0.8,
-        //         steps: 6,
-        //         xIndex: 0,
-        //         yIndex: 0,
-        //     },
-        //     {
-        //         state: EntityState.WALKING,
-        //         direction: EntityDirection.N,
-        //         speed: 0.8,
-        //         steps: 6,
-        //         xIndex: 0,
-        //         yIndex: 0,
-        //     },
-        //     {
-        //         state: EntityState.IDLING,
-        //         direction: EntityDirection.S,
-        //         speed: 0.8,
-        //         steps: 6,
-        //         xIndex: 0,
-        //         yIndex: 1
-        //     },
-        //     {
-        //         state: EntityState.IDLING,
-        //         direction: EntityDirection.E,
-        //         speed: 0.8,
-        //         steps: 6,
-        //         xIndex: 0,
-        //         yIndex: 1
-        //     },
-        //     {
-        //         state: EntityState.IDLING,
-        //         direction: EntityDirection.W,
-        //         speed: 0.8,
-        //         steps: 6,
-        //         xIndex: 0,
-        //         yIndex: 1,
-        //     },
-        //     {
-        //         state: EntityState.IDLING,
-        //         direction: EntityDirection.N,
-        //         speed: 0.8,
-        //         steps: 6,
-        //         xIndex: 0,
-        //         yIndex: 1,
-        //     }
-        // ];
+        this.spirteSheetMap = [
+            {
+                state: EntityState.WALKING,
+                direction: EntityDirection.S,
+                speed: 0.8,
+                steps: 6,
+                xIndex: 0,
+                yIndex: 0
+            },
+            {
+                state: EntityState.WALKING,
+                direction: EntityDirection.E,
+                speed: 0.8,
+                steps: 6,
+                xIndex: 0,
+                yIndex: 0
+            },
+            {
+                state: EntityState.WALKING,
+                direction: EntityDirection.W,
+                speed: 0.8,
+                steps: 6,
+                xIndex: 0,
+                yIndex: 0,
+            },
+            {
+                state: EntityState.WALKING,
+                direction: EntityDirection.N,
+                speed: 0.8,
+                steps: 6,
+                xIndex: 0,
+                yIndex: 0,
+            },
+            {
+                state: EntityState.IDLING,
+                direction: EntityDirection.S,
+                speed: 0.8,
+                steps: 6,
+                xIndex: 0,
+                yIndex: 1
+            },
+            {
+                state: EntityState.IDLING,
+                direction: EntityDirection.E,
+                speed: 0.8,
+                steps: 6,
+                xIndex: 0,
+                yIndex: 1
+            },
+            {
+                state: EntityState.IDLING,
+                direction: EntityDirection.W,
+                speed: 0.8,
+                steps: 6,
+                xIndex: 0,
+                yIndex: 1,
+            },
+            {
+                state: EntityState.IDLING,
+                direction: EntityDirection.N,
+                speed: 0.8,
+                steps: 6,
+                xIndex: 0,
+                yIndex: 1,
+            }
+        ];
     }
 }

@@ -5,23 +5,25 @@ import { Movable } from '../../../Components/Movable';
 import { Stats } from '../../../Components/Stats';
 import { Collidable, CubeHitbox } from '../../../Components/Collidable';
 import { Vector3 } from '../../../Util/Vector3';
+import { Drawable } from '../../../Components/Drawable';
 
 export class Slime extends Entity {
     public frameHeight: number = 32;
     public frameWidth: number = 32;
-    public width: number = 64;
-    public height: number = 64;
+    public width: number = 32;
+    public height: number = 32;
+    public position: Vector3 = new Vector3(3, 3, 3);
+    public castShadow: boolean = true;
 
-    constructor(
-        public position = new Vector3(0, 0, 0)
-    ) {
+    constructor() {
         super();
 
         this.addComponents(
+            new Drawable(),
             new Stats(),
             new Physical(),
-            new Collidable(new CubeHitbox(1, 1, 1, this.position)),
-            new Movable()
+            new Collidable(new CubeHitbox(this, 0.5, 0.5, 0.5, 0, 0, 0)),
+            new Movable(),
         );
 
         this.image.src = SlimeBlue;

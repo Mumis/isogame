@@ -4,6 +4,9 @@ import { Entity } from '../Entities/Entity';
 import { Game } from '../Game/Game';
 import { System } from './System';
 
+// Friction coefficient (adjust as necessary)
+const frictionCoefficient = 0.9;
+
 export class CollisionSystem extends System {
     public constructor() {
         super();
@@ -14,36 +17,54 @@ export class CollisionSystem extends System {
     }
 
     public update(dt: number, game: Game): void {
-        for (const entity of this.filteredEntities.filter(x => !x.getComponent(Collidable).stationary)) {
+        for (const entity of this.filteredEntities.filter(x => !x.getComponent(Collidable).stationary && x.hasComponent(Physical))) {
             const collidable = entity.getComponent(Collidable);
+            const physical = entity.getComponent(Physical);
             const hitbox = collidable.box;
 
             for (const entity2 of this.filteredEntities.filter(x => x !== entity)) {
                 const collidable2 = entity2.getComponent(Collidable);
+                //const physical2 = entity2.getComponent(Physical);
                 const hitbox2 = collidable2.box;
 
                 if (hitbox instanceof CubeHitbox && hitbox2 instanceof CubeHitbox) {
-                    if (hitbox.intersectAABB(hitbox2) && entity.hasComponent(Physical)) {
-                        const overlap = hitbox.overlapAABB(hitbox2);
+                    const intersectionArea = hitbox.intersectAABB(hitbox2);
 
-                        // Determine the smallest overlap to push the entity out
-                        if (overlap.x < overlap.y && overlap.x < overlap.z) {
-                            console.log('overlapx')
-                            // Push along X axis
-                            entity.position.x += (entity.position.x < entity2.position.x ? -overlap.x : overlap.x);
-                        } else if (overlap.y < overlap.x && overlap.y < overlap.z) {
-                            console.log('overlapy')
-                            // Push along Y axis
-                            entity.position.y += (entity.position.y < entity2.position.y ? -overlap.y : overlap.y);
-                            entity.getComponent(Physical).velocity.y = 0;
-                            //console.log('wtf')
-                        } else {
-                            console.log('overlapz')
-                            // Push along Z axis
-                            entity.position.z += (entity.position.z < entity2.position.z ? -overlap.z : overlap.z);
+                    if (intersectionArea) {
+                        const deltaX = intersectionArea.maxX - intersectionArea.minX;
+                        const deltaY = intersectionArea.maxY - intersectionArea.minY;
+                        const deltaZ = intersectionArea.maxZ - intersectionArea.minZ;
+
+                        const min = Math.min(deltaY, deltaX, deltaZ);
+                        
+                        // OVER AND UNDER
+                        if (deltaY === min) { 
+                            if (hitbox.attached.position.y > hitbox2.attached.position.y) {
+                                physical.velocity.y = Math.max(0, physical.velocity.y);
+                                entity.position.y += deltaY;
+                            } else {
+                                entity.position.y += -deltaY;
+                                physical.velocity.y = Math.min(0, physical.velocity.y);
+                            }
                         }
 
-                        //console.log(overlap)
+                        // NORTH AND SOUTH
+                        else if (deltaZ === min) {
+                            if (hitbox.attached.position.z > hitbox2.attached.position.z) {
+                                entity.position.z += deltaZ;
+                            } else {
+                                entity.position.z -= deltaZ;
+                            }
+                        }
+                
+                        // WEST AND EAST
+                        else if  (deltaX === min) { 
+                            if (hitbox.attached.position.x > hitbox2.attached.position.x) {
+                                hitbox.attached.position.x += deltaX;
+                            } else {
+                                hitbox.attached.position.x -= deltaX;
+                            }
+                        }
                     }
                 }
             }

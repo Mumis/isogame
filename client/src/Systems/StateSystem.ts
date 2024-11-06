@@ -17,13 +17,13 @@ export class StateSystem extends System {
 			if (entity.hasComponent(Movable)) {
                 const movable = entity.getComponent(Movable);
 
-                if (movable.vector.y > 0) {
+                if (movable.velocity.y > 0) {
                     entity.setState(EntityState.AIRBORNE);
 
                     return;
                 }
 
-                if (movable.vector.length()) {
+                if (movable.velocity.length()) {
                     entity.setState(EntityState.WALKING);
 
                     return;
