@@ -24,12 +24,12 @@ export class CameraSystem extends System {
             }
             
             this.targetPosition = entity.position;
-
-            game.cameraPosition = new Vector3(
-                lerp(game.cameraPosition.x, this.targetPosition.x, 0.08),
-                lerp(game.cameraPosition.y, this.targetPosition.y, 0.08),
-                lerp(game.cameraPosition.z, this.targetPosition.z, 0.08),
-            );
+            game.cameraPosition = entity.position;
+            // game.cameraPosition = new Vector3(
+            //     lerp(game.cameraPosition.x, this.targetPosition.x, 0.08),
+            //     lerp(game.cameraPosition.y, this.targetPosition.y, 0.08),
+            //     lerp(game.cameraPosition.z, this.targetPosition.z, 0.08),
+            // );
         }
     }
 }

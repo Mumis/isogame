@@ -86,64 +86,63 @@ export class Tile extends Entity {
 
         // Access the image URL based on tileNum
         this.image.src = imageMap[this.tileNum];
-
-        //this.addComponent(new Collidable(new CubeHitbox(1, 1, 0.5, this.position), true));
+        this.addComponent(new Collidable(new CubeHitbox(1, 1, 0.5, this.position, 0), true));
     }
 
-    public draw(ctx: CanvasRenderingContext2D, dt: number, opacity: number) {
-        const screenPos = Game.worldPosToScreenPos(this.position, -this.width / 2, this.height / -2);
-        const width = this.width;
-        const height = this.height;
+    // public draw(ctx: CanvasRenderingContext2D, dt: number, opacity: number) {
+    //     const screenPos = Game.worldPosToScreenPos(this.position);
+    //     const width = this.width;
+    //     const height = this.height;
 
-        ctx.imageSmoothingEnabled = false;
+    //     ctx.imageSmoothingEnabled = false;
 
-        let animationData = this.spirteSheetMap.find((map) => 
-            map.state === this.state &&
-            map.direction === this.direction
-        );
+    //     let animationData = this.spirteSheetMap.find((map) => 
+    //         map.state === this.state &&
+    //         map.direction === this.direction
+    //     );
         
-        const xIndex = animationData?.xIndex ?? 0;
-        const yIndex = animationData?.yIndex ?? 0;
-        const steps = animationData?.steps ?? 0;
-        const speed = animationData?.speed ?? 0;
+    //     const xIndex = animationData?.xIndex ?? 0;
+    //     const yIndex = animationData?.yIndex ?? 0;
+    //     const steps = animationData?.steps ?? 0;
+    //     const speed = animationData?.speed ?? 0;
         
-        // Calculate source X and Y position in the sprite sheet
-        const sourceX = (xIndex + this.step) * this.frameWidth;
-        const sourceY = yIndex * this.frameHeight;
+    //     // Calculate source X and Y position in the sprite sheet
+    //     const sourceX = (xIndex + this.step) * this.frameWidth;
+    //     const sourceY = yIndex * this.frameHeight;
     
-        // Save the current transformation matrix
-        ctx.save();      
+    //     // Save the current transformation matrix
+    //     ctx.save();      
 
-        ctx.globalAlpha = opacity;
+    //     ctx.globalAlpha = opacity;
 
-        // Draw the specific frame from the sprite sheet
-        ctx.drawImage(
-            this.image,
-            sourceX,
-            sourceY,  
-            this.frameWidth,
-            this.frameHeight,
-            screenPos.x,    
-            screenPos.y,
-            width,
-            height
-        );
+    //     // Draw the specific frame from the sprite sheet
+    //     ctx.drawImage(
+    //         this.image,
+    //         sourceX,
+    //         sourceY,  
+    //         this.frameWidth,
+    //         this.frameHeight,
+    //         screenPos.x,    
+    //         screenPos.y,
+    //         width,
+    //         height
+    //     );
         
-        ctx.restore();
+    //     ctx.restore();
         
-        // Accumulate the time elapsed
-        this.timeElapsed += dt;
+    //     // Accumulate the time elapsed
+    //     this.timeElapsed += dt;
     
-        // Calculate the duration of each frame in the animation
-        const frameDuration = speed / steps;  // Total time for the whole animation divided by the number of steps
+    //     // Calculate the duration of each frame in the animation
+    //     const frameDuration = speed / steps;  // Total time for the whole animation divided by the number of steps
     
-        if (this.timeElapsed >= frameDuration) {
-            this.step++;
-            this.timeElapsed = 0;  // Reset time for the next frame
-        }
+    //     if (this.timeElapsed >= frameDuration) {
+    //         this.step++;
+    //         this.timeElapsed = 0;  // Reset time for the next frame
+    //     }
     
-        if (this.step >= steps) {
-            this.step = xIndex;  // Reset step for looping animations
-        }
-    } 
+    //     if (this.step >= steps) {
+    //         this.step = xIndex;  // Reset step for looping animations
+    //     }
+    // } 
 }

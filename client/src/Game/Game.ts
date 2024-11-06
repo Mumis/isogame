@@ -56,13 +56,14 @@ export class Game {
     
     private readonly systems: System[] = [
         // Normal Systems
-        new MovementSystem(),
         new RandomMovementSystem(),
+        
+        new MovementSystem(),
+        new GravitySystem(),
         new VelocitySystem(),
+        new CollisionSystem(),
         
         // Try to not adjust these
-        new GravitySystem(),
-        //new CollisionSystem(),
         new FogOfWarSystem(),
         new StateSystem(),
         new CameraSystem(),
@@ -93,8 +94,8 @@ export class Game {
                 (tile, z) => {
                     this.entities.push(new Tile(
                     Math.floor(Math.random() * 30),
-                    new Vector3(x, 0, z),
-                    -1));
+                    new Vector3(x, -0.5, z),
+                    0));
                 }
             )
         );
@@ -109,7 +110,7 @@ export class Game {
 
         const tile = new Tile(
             10,
-            new Vector3(5, 0.5, 5),
+            new Vector3(5, 0, 5),
             0
         );
 
@@ -126,7 +127,7 @@ export class Game {
             const mouseY = event.clientY; // Get the Y coordinate of the mouse click
         
             // Convert the screen position to world position
-            const worldPosition = Game.screenPosToWorldPos(new Vector3(mouseX, mouseY, 0));
+            const worldPosition = Game.isoTo2D(new Vector3(mouseX, mouseY, 0));
         
             console.log(`World Position: ${worldPosition.floor()}`);
         });
@@ -269,25 +270,41 @@ export class Game {
     
     //     return new Vector3(x, y, z);
     // }
+
+    public static isoTo2D(vector: Vector3): Vector3{
+        return new Vector3(
+            (2 * vector.z - vector.x) / 2,
+            (2 * vector.z + vector.x) / 2,
+            0
+        );
+    }
+
+    public static worldPosToScreenPos(position: Vector3): Vector3 {
+        return new Vector3(
+            ((position.x * Game.TILE_SIZE_WIDTH / 2) + (position.z * Game.TILE_SIZE_WIDTH / 2)),
+            ((position.x * Game.TILE_SIZE_DEPTH / 2) - (position.z * Game.TILE_SIZE_DEPTH / 2))  - (position.y * Game.TILE_SIZE_DEPTH),
+            0
+        );
+    }
     
-    public static worldPosToScreenPos(position: Vector3, offsetX: number = 0, offsetY: number = 0): Vector3 {
-        const x = (position.x * Game.TILE_SIZE_WIDTH / 2) + (position.z * Game.TILE_SIZE_WIDTH / 2) + offsetX;
-        const y = (position.x * (Game.TILE_SIZE_DEPTH) / 2) - (position.z * (Game.TILE_SIZE_DEPTH) / 2) - (position.y * Game.TILE_SIZE_DEPTH) + offsetY;
+    // public static worldPosToScreenPos(position: Vector3, offsetX: number = 0, offsetY: number = 0): Vector3 {
+    //     const x = (position.x * Game.TILE_SIZE_WIDTH / 2) + (position.z * Game.TILE_SIZE_WIDTH / 2) + offsetX;
+    //     const y = (position.x * Game.TILE_SIZE_DEPTH / 2) - (position.z * Game.TILE_SIZE_DEPTH / 2) - (position.y * Game.TILE_SIZE_DEPTH) + offsetY;
 
-        return new Vector3(x, y, 0);
-    }
+    //     return new Vector3(x, y, 0);
+    // }
 
-    public static screenPosToWorldPos(screenPos: Vector3): Vector3 {
-        const TILE_WIDTH = Game.TILE_SIZE_WIDTH;   // Width of tile
-        const TILE_DEPTH = Game.TILE_SIZE_DEPTH;   // Depth of tile
+    // public static screenPosToWorldPos(screenPos: Vector3): Vector3 {
+    //     const TILE_WIDTH = Game.TILE_SIZE_WIDTH;   // Width of tile
+    //     const TILE_DEPTH = Game.TILE_SIZE_DEPTH;   // Depth of tile
 
-        const x = ((screenPos.x) / (TILE_WIDTH / 2)) - ((screenPos.y) / (TILE_DEPTH / 2));
-        const z = ((screenPos.x) / (TILE_WIDTH / 2)) + ((screenPos.y) / (TILE_DEPTH / 2));
+    //     const x = ((screenPos.x) / (TILE_WIDTH / 2)) - ((screenPos.y) / (TILE_DEPTH / 2));
+    //     const z = ((screenPos.x) / (TILE_WIDTH / 2)) + ((screenPos.y) / (TILE_DEPTH / 2));
 
-        const y = (screenPos.y + (TILE_DEPTH / 2)) / TILE_DEPTH; // Adjust y based on depth
+    //     const y = (screenPos.y + (TILE_DEPTH / 2)) / TILE_DEPTH; // Adjust y based on depth
 
-        return new Vector3(x, y, z);
-    }
+    //     return new Vector3(x, y, z);
+    // }
 
     // public static worldPosToScreenPos(pt:Vector3): Vector3 {
     //     var tempPt:Vector3 = new Vector3(0, 0, 0);

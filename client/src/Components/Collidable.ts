@@ -2,57 +2,65 @@ import { Vector3 } from '../Util/Vector3';
 import { Component } from './Component';
 
 export class CubeHitbox {
-    constructor(public width: number, public depth: number, public height: number, public position: Vector3) {}
+    constructor(
+        private width: number, 
+        private depth: number, 
+        private height: number, 
+        private position: Vector3,
+        private offsetX: number = 0,
+        private offsetY: number = 0,
+        private offsetZ: number = 0
+    ) {}
+
+    public getBoundingBox() {
+        return {
+            minX: this.position.x + this.offsetX - this.width / 2,
+            maxX: this.position.x + this.offsetX + this.width / 2,
+            minY: this.position.y + this.offsetY - this.height,
+            maxY: this.position.y + this.offsetY,
+            minZ: this.position.z + this.offsetZ - this.depth / 2,
+            maxZ: this.position.z + this.offsetZ + this.depth / 2
+        }
+    }
+
+    public getCorners(): Vector3[] {
+        const { minX, maxX, minY, maxY, minZ, maxZ } = this.getBoundingBox();
+    
+        return [
+            new Vector3(minX, minY, minZ), // Bottom-front-left
+            new Vector3(maxX, minY, minZ), // Bottom-front-right
+            new Vector3(maxX, minY, maxZ), // Bottom-back-right
+            new Vector3(minX, minY, maxZ), // Bottom-back-left
+            new Vector3(minX, maxY, minZ), // Top-front-left
+            new Vector3(maxX, maxY, minZ), // Top-front-right
+            new Vector3(maxX, maxY, maxZ), // Top-back-right
+            new Vector3(minX, maxY, maxZ), // Top-back-left
+        ];
+    }
 
     public intersectAABB(b: CubeHitbox) {
-        const aMinX = this.position.x - this.width;
-        const aMaxX = this.position.x;
-        const aMinY = this.position.y;
-        const aMaxY = this.position.y + this.height;
-        const aMinZ = this.position.z - this.depth;
-        const aMaxZ = this.position.z;
-
-        const bMinX = b.position.x - b.width;
-        const bMaxX = b.position.x;
-        const bMinY = b.position.y;
-        const bMaxY = b.position.y + this.height;
-        const bMinZ = b.position.z - b.depth;
-        const bMaxZ = b.position.z;
+        const box1 = this.getBoundingBox();
+        const box2 = b.getBoundingBox();
 
         return (
-            aMinX <= bMaxX &&
-            aMaxX >= bMinX &&
-            aMinY <= bMaxY &&
-            aMaxY >= bMinY &&
-            aMinZ <= bMaxZ &&
-            aMaxZ >= bMinZ
+            box1.minX <= box2.maxX &&
+            box1.maxX >= box2.minX &&
+            box1.minY <= box2.maxY &&
+            box1.maxY >= box2.minY &&
+            box1.minZ <= box2.maxZ &&
+            box1.maxZ >= box2.minZ
         );
     }
 
-    public getIntersectArea(b: CubeHitbox): any {
-        const aMinX = this.position.x - this.width;
-        const aMaxX = this.position.x;
-        const aMinY = this.position.y;
-        const aMaxY = this.position.y + this.height;
-        const aMinZ = this.position.z - this.depth;
-        const aMaxZ = this.position.z;
+    public overlapAABB(b: CubeHitbox) {
+        const box1 = this.getBoundingBox();
+        const box2 = b.getBoundingBox();
 
-        const bMinX = b.position.x - b.width;
-        const bMaxX = b.position.x;
-        const bMinY = b.position.y;
-        const bMaxY = b.position.y + this.height;
-        const bMinZ = b.position.z - b.depth;
-        const bMaxZ = b.position.z;
+        const overlapX = Math.min(box1.maxX - box2.minX, box2.maxX - box1.minX);
+        const overlapY = Math.min(box1.maxY - box2.minY, box2.maxY - box1.minY);
+        const overlapZ = Math.min(box1.maxZ - box2.minZ, box2.maxZ - box2.minZ);
 
-        const min = {x: Math.max(aMinX, bMinX), y: Math.max(aMinY, bMinY), z: Math.max(aMinZ, bMinZ)};
-        const max = {x: Math.min(aMaxX, bMaxX), y: Math.min(aMaxY, bMaxY), z: Math.min(aMaxZ, bMaxZ)};
-
-        const object = {
-            min: min,
-            max: max,
-        };
-
-        return object;
+        return new Vector3(overlapX, overlapY, overlapZ);
     }
 }
 

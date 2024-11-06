@@ -51,14 +51,7 @@ export class DebugSystem extends System {
                 const hitbox = entity.getComponent(Collidable);
 
                 if (hitbox.box instanceof CubeHitbox) {
-                    drawCube(
-                        Game.worldPosToScreenPos(hitbox.box.position), 
-                        (hitbox.box.width * Game.TILE_SIZE_WIDTH) / 2, 
-                        (hitbox.box.depth * Game.TILE_SIZE_WIDTH) / 2, 
-                        hitbox.box.height * Game.TILE_SIZE_DEPTH,
-                        'green', 
-                        this.bufferCtx
-                    );
+                    drawCube(hitbox.box, this.bufferCtx);
                 }
 
             }
@@ -95,47 +88,40 @@ function drawPoint(position: Vector3, text: string, color: string, ctx: CanvasRe
     // ctx.fillText(text, textX, textZ);
 }
 
-function drawBox(position: Vector3, w, h, color, ctx: CanvasRenderingContext2D) {
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 2;
-
-    ctx.strokeRect(position.x, position.y, w, h);
-}
-
-// Draw a cube to the specified specs
-function drawCube(position: Vector3, width, depth, height, color, ctx: CanvasRenderingContext2D) {
-    const x = position.x;
-    const y = position.y;
-
-    // const width = w / 2;
-    // const depth = d / 2;
-
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.lineTo(x - width, y - width * 0.5);
-    ctx.lineTo(x - width, y - height - width * 0.5);
-    ctx.lineTo(x, y - height * 1);
-    ctx.closePath();
-    ctx.strokeStyle = color;
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.lineTo(x + depth, y - depth * 0.5);
-    ctx.lineTo(x + depth, y - height - depth * 0.5);
-    ctx.lineTo(x, y - height * 1);
-    ctx.closePath();
-    ctx.strokeStyle = color;
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(x, y - height);
-    ctx.lineTo(x - depth, y - height - depth * 0.5);
-    ctx.lineTo(x - depth + depth, y - height - (depth * 0.5 + depth * 0.5));
-    ctx.lineTo(x + depth, y - height - depth * 0.5);
-    ctx.closePath();
-    ctx.fillStyle = color;
-    ctx.stroke();
+function drawCube(box: CubeHitbox, context: CanvasRenderingContext2D) {
+        // Get corners in world space
+        const corners = box.getCorners();
+    
+        // Convert each corner to screen coordinates
+        const screenCorners = corners.map(corner => Game.worldPosToScreenPos(corner));
+    
+        // Draw edges for the 3D bounding box in 2D
+        context.beginPath();
+        
+        // Bottom face
+        context.moveTo(screenCorners[0].x, screenCorners[0].y);
+        context.lineTo(screenCorners[1].x, screenCorners[1].y);
+        context.lineTo(screenCorners[2].x, screenCorners[2].y);
+        context.lineTo(screenCorners[3].x, screenCorners[3].y);
+        context.closePath();  // Close bottom face
+    
+        // Top face
+        context.moveTo(screenCorners[4].x, screenCorners[4].y);
+        context.lineTo(screenCorners[5].x, screenCorners[5].y);
+        context.lineTo(screenCorners[6].x, screenCorners[6].y);
+        context.lineTo(screenCorners[7].x, screenCorners[7].y);
+        context.closePath();  // Close top face
+    
+        // Vertical edges connecting top and bottom faces
+        for (let i = 0; i < 4; i++) {
+            context.moveTo(screenCorners[i].x, screenCorners[i].y);
+            context.lineTo(screenCorners[i + 4].x, screenCorners[i + 4].y);
+        }
+    
+        // Set styling and stroke the lines
+        context.strokeStyle = "red";
+        context.lineWidth = 1;
+        context.stroke();
 }
 
 function drawCircle(position: Vector3, w, h, color, ctx: CanvasRenderingContext2D) {

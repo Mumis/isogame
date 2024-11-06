@@ -29,16 +29,19 @@ export class DrawSystem extends System {
         // Set up the transformation: translate to the camera position
         this.bufferCtx.transform(1, 0, 0, 1, -cameraX, -cameraY);
 
-        const orderedFilteredEntities = [...this.filteredEntities].sort((a, b) => {
-            const screenPosA = Game.worldPosToScreenPos(a.position);
-            const screenPosB = Game.worldPosToScreenPos(b.position);
-
-            // console.log(a.position.z, b.position.z)
+        const orderedFilteredEntities = [...this.filteredEntities].sort((a, b) => { 
+            const aFloored = a.position.floor();
+            const bFloored = b.position.floor();
             
             // Compare by zIndex first
             if (a.zIndex !== b.zIndex) {
                 return a.zIndex - b.zIndex; // Ascending by zIndex (use b.zIndex - a.zIndex for descending)
             }
+
+            // if (aFloored.x === bFloored.x && aFloored.z === bFloored.z) {
+            //     console.log()
+            //     return a.position.y - b.position.y
+            // }
 
             // If zIndex is the same, compare by z position in descending order
             if (b.position.floor().z !== a.position.floor().z) {

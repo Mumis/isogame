@@ -79,7 +79,6 @@ export class MovementSystem extends System {
             }
     
             // You can only jump & move while being on ground
-            if (entity.position.y === 0) {
                 // JUMP
                 if (this.inputs.has('jump')) {
                     y += 200;
@@ -104,7 +103,6 @@ export class MovementSystem extends System {
                 const xzVector = new Vector3(x, 0, z).normalize().divideScalar(32).multiplyScalar(speed).multiplyScalar(multiplier);
                 const yVector = new Vector3(0, y, 0).divideScalar(32);
                 movable.vector = new Vector3(xzVector.x, yVector.y, xzVector.z);
-            }
         }
     }
 }

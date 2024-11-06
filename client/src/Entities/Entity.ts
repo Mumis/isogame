@@ -115,24 +115,24 @@ export class Entity {
     }
 
     public draw(ctx: CanvasRenderingContext2D, dt: number, opacity: number) {        
-        const screenPos = Game.worldPosToScreenPos(this.position, -this.width / 2, -this.height);
+        const screenPos = Game.worldPosToScreenPos(this.position);
         const width = this.width;
         const height = this.height;
         
-        if (this.castShadow) {
-            // Floor
-            const shadowScreenPos = Game.worldPosToScreenPos(new Vector3(this.position.x, 0, this.position.z));
+        // if (this.castShadow) {
+        //     // Floor
+        //     const shadowScreenPos = Game.twoDToIso(new Vector3(this.position.x, 0, this.position.z));
 
-            const shadowX = shadowScreenPos.x;
-            const shadowY = shadowScreenPos.y;
+        //     const shadowX = shadowScreenPos.x;
+        //     const shadowY = shadowScreenPos.y;
 
-            const shadowHeight = (this.height) / 6;
-            const shadowWidth = (this.width) / 3;
+        //     const shadowHeight = (this.height) / 6;
+        //     const shadowWidth = (this.width) / 3;
 
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-            ctx.ellipse(shadowX, shadowY, shadowWidth, shadowHeight, Math.PI, 0, 4 * Math.PI);
-            ctx.fill();
-        }
+        //     ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+        //     ctx.ellipse(shadowX, shadowY, shadowWidth, shadowHeight, Math.PI, 0, 4 * Math.PI);
+        //     ctx.fill();
+        // }
 
         ctx.imageSmoothingEnabled = false;
 
@@ -162,8 +162,8 @@ export class Entity {
             sourceY,  
             this.frameWidth,
             this.frameHeight,
-            screenPos.x,
-            screenPos.y,
+            screenPos.x - Game.TILE_SIZE_WIDTH / 2,
+            screenPos.y - Game.TILE_SIZE_DEPTH,
             width,
             height
         );
