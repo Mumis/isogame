@@ -4,7 +4,7 @@ import { Game } from '../Game/Game';
 import { Vector3 } from '../Util/Vector3';
 import { System } from './System';
 
-export class FogOfWarSystem extends System {
+export class ChunkSystem extends System {
     private lastCameraPosition: Vector3 | null = null;
 
     public constructor() {
@@ -28,7 +28,7 @@ export class FogOfWarSystem extends System {
         const radius = 11;
         
         for (const entity of this.filteredEntities) {
-            const inRadius = isPointInCircle(entity.position.x, entity.position.z, cameraPosition.x, cameraPosition.z, radius);
+            const inRadius = entity.position.distanceTo(game.cameraPosition) < radius;
 
             const drawable = entity.hasComponent(Drawable) ? entity.getComponent(Drawable) : null;
 

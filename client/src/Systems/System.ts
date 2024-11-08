@@ -25,6 +25,10 @@ export class System {
         // Intentionally left empty
     }
 
+    public filteredEntitiesUpdated(game: Game): void {
+        // Intentionally left empty
+    }
+
     public update(dt: number, game: Game): void {
         throw new Error('Not implemented');
     }

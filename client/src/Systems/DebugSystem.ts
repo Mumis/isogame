@@ -53,18 +53,17 @@ export class DebugSystem extends System {
                 if (hitbox.box instanceof CubeHitbox) {
                     drawCube(hitbox.box, this.bufferCtx);
                 }
-
             }
 
-            // if (true) {
-            //     drawPoint(
-            //         Game.worldPosToScreenPos(entity.position),
-            //         `${entity.position.floor().toString()}`, 
-            //         'yellow', 
-            //         this.bufferCtx,
-            //         2
-            //     );
-            // }
+            if (true) {
+                drawPoint(
+                    Game.worldPosToScreenPos(entity.position),
+                    `${entity.position.floor().toString()}`, 
+                    'yellow', 
+                    this.bufferCtx,
+                    2
+                );
+            }
         }
 
         // Show FPS

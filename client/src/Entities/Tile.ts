@@ -72,10 +72,10 @@ const imageMap: { [key: number]: string } = {
 };
 
 export class Tile extends Entity {
-    public frameHeight: number = 32;
-    public frameWidth: number = 32;
-    public width: number = Game.TILE_SIZE_WIDTH;
-    public height: number = Game.TILE_SIZE_WIDTH;
+    public frameHeight = 32;
+    public frameWidth = 32;
+    public width = Game.TILE_SIZE_WIDTH;
+    public height = Game.TILE_SIZE_WIDTH;
 
     constructor(
         public tileNum: number,
@@ -86,7 +86,7 @@ export class Tile extends Entity {
 
         // Access the image URL based on tileNum
         this.image.src = imageMap[this.tileNum];
-        this.addComponent(new Collidable(new CubeHitbox(this, 1, 1, 0.5, 0), true));
+        this.addComponent(new Collidable(new CubeHitbox(this, 1, 1, 0.5, 0)));
     }
 
     // public draw(ctx: CanvasRenderingContext2D, dt: number, opacity: number) {

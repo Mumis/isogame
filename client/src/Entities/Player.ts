@@ -12,12 +12,12 @@ import tile30 from '../../assets/tiles/tile_30.png';
 import { Vector3 } from '../Util/Vector3';
 
 export class Player extends Entity {
-    public frameHeight: number = 32;
-    public frameWidth: number = 32;
-    public width: number = 32;
-    public height: number = 32;
-    public position: Vector3 = new Vector3(3, 3, 3);
-    public castShadow: boolean = true;
+    public frameHeight = 32;
+    public frameWidth = 32;
+    public width = 32;
+    public height = 32;
+    public position = new Vector3(3, 3, 3);
+    public castShadow = true;
 
     constructor() {
         super();
@@ -26,7 +26,7 @@ export class Player extends Entity {
             new Drawable(),
             new Stats(),
             new Physical(),
-            new Collidable(new CubeHitbox(this, 0.5, 0.5, 0.5, 0, 0, 0)),
+            new Collidable(new CubeHitbox(this, 0.33, 0.33, 0.5, 0, 0, 0)),
             new Movable(),
         );
 

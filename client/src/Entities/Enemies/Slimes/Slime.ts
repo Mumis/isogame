@@ -12,17 +12,16 @@ export class Slime extends Entity {
     public frameWidth: number = 32;
     public width: number = 32;
     public height: number = 32;
-    public position: Vector3 = new Vector3(3, 3, 3);
     public castShadow: boolean = true;
 
-    constructor() {
+    constructor(public position = new Vector3(3, 3, 3)) {
         super();
 
         this.addComponents(
             new Drawable(),
             new Stats(),
             new Physical(),
-            new Collidable(new CubeHitbox(this, 0.5, 0.5, 0.5, 0, 0, 0)),
+            new Collidable(new CubeHitbox(this, 0.33, 0.33, 0.5, 0, 0, 0)),
             new Movable(),
         );
 

@@ -17,9 +17,11 @@ import { GravitySystem } from '../Systems/GravitySystem';
 import { Tile } from '../Entities/Tile';
 import { Vector3 } from '../Util/Vector3';
 import { EntityChanged } from '../Event/EntityChanged';
-import { FogOfWarSystem } from '../Systems/FogOfWarSystem';
+import { ChunkSystem } from '../Systems/CunkSystem';
 import { Collidable, CubeHitbox } from '../Components/Collidable';
-import { CollisionSystem } from '../Systems/CollisionSystem';
+import { PhysicalCollisionSystem } from '../Systems/PhysicalCollisionSystem';
+import { TerrainCollisionSystem } from '../Systems/TerrainCollisionSystem';
+import { World } from './World';
 
 export class Game {
     private static readonly TIME_STEP = 1 / 144;
@@ -31,7 +33,7 @@ export class Game {
     public static readonly TILE_SIZE_DEPTH = 32;
     public static readonly TILE_OFFSET = 16;
 
-    private readonly map = [
+    private readonly map = [[
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         [1, 1, 1, 2, 1, 19, 20, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         [1, 9, 8, 7, 3, 18, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -45,8 +47,8 @@ export class Game {
         [1, 1, 1, 1, 1, 1, 1, 12, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-    ]
-
+    ]];
+    
     static readonly events = new EventBus();
     public fps = 1 / Game.TIME_STEP;
 
@@ -57,15 +59,17 @@ export class Game {
     
     private readonly systems: System[] = [
         // Normal Systems
-        new RandomMovementSystem(),
+        //new RandomMovementSystem(),
         
         new MovementSystem(),
         new GravitySystem(),
         new VelocitySystem(),
-        new CollisionSystem(),
+
+        new PhysicalCollisionSystem(),
+        new TerrainCollisionSystem(),
         
         // Try to not adjust these
-        new FogOfWarSystem(),
+        new ChunkSystem(),
         new StateSystem(),
         new CameraSystem(),
         new DrawSystem(),
@@ -90,16 +94,28 @@ export class Game {
         ctx.canvas.height = this.height;
 
         // Load map
-        this.map.forEach((row, x) => 
-            row.forEach(
-                (tile, z) => {
+        this.map.forEach((layer, y) => 
+            layer.forEach((row, x) => 
+                row.forEach((tile, z) => {
                     this.entities.push(new Tile(
-                    Math.floor(Math.random() * 30),
-                    new Vector3(x, -0.5, z),
-                    0));
-                }
+                        tile,
+                        new Vector3(x, y, z), // Now we pass x, y, z directly
+                        -1
+                    ));
+                })
             )
         );
+        
+
+        // for (let x = -100; x < 100; x++) {
+        //     for (let z = -100; z < 100; z++) {
+        //         this.entities.push(new Tile(
+        //             1,
+        //             new Vector3(x, -0.5, z),
+        //             0
+        //         ));
+        //     }
+        // }
 
         // for (let i = 1; i < 10; i++) {
         //     this.entities.push(new Tile(
@@ -111,16 +127,16 @@ export class Game {
 
         const tile = new Tile(
             10,
-            new Vector3(5, 1, 5),
+            new Vector3(5, 0.5, 5),
             0
         );
 
-        tile.addComponent(new Collidable(new CubeHitbox(tile, 1, 1, 0.5), true));
+        tile.addComponent(new Collidable(new CubeHitbox(tile, 1, 1, 0.5)));
 
         this.entities.push(tile)
 
-        // for (let i = 0; i < 10000; i++) {
-        //     this.entities.push(new Slime(new Vector3(Math.random() * 50, 0, Math.random() * 50)))
+        // for (let i = 0; i < 200; i++) {
+        //     this.entities.push(new Slime(new Vector3(Math.random() * 20, 2, Math.random() * 20)));
         // }
 
         window.addEventListener('click', (event) => {
@@ -171,7 +187,8 @@ export class Game {
             Game.events.register(EntityRemoved, (event: EntityRemoved) => {
                 for (const system of this.systems) {
                     if (system.appliesTo(event.entity)) {
-                        system.removeEntity(event.entity)
+                        system.removeEntity(event.entity);
+                        system.filteredEntitiesUpdated(this);
                     }
                 }
             });
@@ -180,6 +197,7 @@ export class Game {
                 for (const system of this.systems) {
                     if (system.appliesTo(event.entity)) {
                         system.addEntity(event.entity)
+                        system.filteredEntitiesUpdated(this);
                     }
                 }
             });
@@ -187,11 +205,13 @@ export class Game {
             Game.events.register(EntityChanged, (event: EntityChanged) => {
                 for (const system of this.systems) {
                     if (system.hasEntity(event.entity) && !system.appliesTo(event.entity)) {
-                        system.removeEntity(event.entity)
+                        system.removeEntity(event.entity);
+                        system.filteredEntitiesUpdated(this);
                     }
 
                     if (!system.hasEntity(event.entity) && system.appliesTo(event.entity)) {
                         system.addEntity(event.entity);
+                        system.filteredEntitiesUpdated(this);
                     }
                 }
             });

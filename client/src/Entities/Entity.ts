@@ -35,7 +35,7 @@ export class Entity {
     public timeElapsed: number = 0;  // Time passed since last frame update
 
     public position: Vector3 = new Vector3(0, 0, 0); // [x, y, z]
-    
+
     public zIndex: number = 0;
     public direction: EntityDirection = EntityDirection.S;
     public state: EntityState = EntityState.IDLING;

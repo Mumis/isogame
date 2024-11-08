@@ -2,6 +2,15 @@ import { Entity } from '../Entities/Entity';
 import { Vector3 } from '../Util/Vector3';
 import { Component } from './Component';
 
+export interface IntersectArea {
+    minX: number,
+    maxX: number,
+    minY: number,
+    maxY: number,
+    minZ: number,
+    maxZ: number
+}
+
 export class CubeHitbox {
     constructor(
         public attached: Entity,
@@ -39,11 +48,10 @@ export class CubeHitbox {
         ];
     }
 
-    public intersectAABB(b: CubeHitbox) {
+    public intersectAABB(b: CubeHitbox): IntersectArea | null {
         const box1 = this.getBoundingBox();
         const box2 = b.getBoundingBox();
 
-        // Calculate the intersection boundaries along each axis
         const minX = Math.max(box1.minX, box2.minX);
         const maxX = Math.min(box1.maxX, box2.maxX);
         const minY = Math.max(box1.minY, box2.minY);
@@ -51,9 +59,7 @@ export class CubeHitbox {
         const minZ = Math.max(box1.minZ, box2.minZ);
         const maxZ = Math.min(box1.maxZ, box2.maxZ);
 
-        // Check if there is an actual overlap along each axis
         if (minX < maxX && minY < maxY && minZ < maxZ) {
-            // If there is an overlap, return the intersection box's min and max bounds
             return {
                 minX: minX,
                 maxX: maxX,
@@ -62,10 +68,9 @@ export class CubeHitbox {
                 minZ: minZ,
                 maxZ: maxZ
             };
-        } else {
-            // If there is no overlap, return null or a suitable representation of "no intersection"
-            return null;
         }
+
+        return null;
     }
 
     public overlapAABB(b: CubeHitbox) {
@@ -90,8 +95,7 @@ export type HitboxType = CubeHitbox | SphereHitbox;
 
 export class Collidable extends Component {
     public constructor(
-        public box: CubeHitbox | SphereHitbox, 
-        public stationary: boolean = false
+        public box: CubeHitbox | SphereHitbox
     ) {
         super();
     }
