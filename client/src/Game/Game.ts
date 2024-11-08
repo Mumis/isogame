@@ -62,11 +62,11 @@ export class Game {
         //new RandomMovementSystem(),
         
         new MovementSystem(),
-        new GravitySystem(),
+        // new GravitySystem(),
         new VelocitySystem(),
 
         new PhysicalCollisionSystem(),
-        new TerrainCollisionSystem(),
+        // new TerrainCollisionSystem(),
         
         // Try to not adjust these
         new ChunkSystem(),
