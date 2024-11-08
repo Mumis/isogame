@@ -94,18 +94,23 @@ export class Game {
         ctx.canvas.height = this.height;
 
         // Load map
-        this.map.forEach((layer, y) => 
-            layer.forEach((row, x) => 
-                row.forEach((tile, z) => {
+        for (let y = 0; y < this.map.length; y++){
+            const layer = this.map[y];
+
+            for (let x = 0; x < layer.length; x++){
+                const row = layer[x];
+
+                for (let z = 0; z < row.length; z++){
+                    const tile1 = row[z];
+
                     this.entities.push(new Tile(
-                        tile,
-                        new Vector3(x, y, z), // Now we pass x, y, z directly
-                        -1
+                      tile1,
+                      new Vector3(x, y, z), // Now we pass x, y, z directly
+                      0
                     ));
-                })
-            )
-        );
-        
+                }
+            }
+        }
 
         // for (let x = -100; x < 100; x++) {
         //     for (let z = -100; z < 100; z++) {
@@ -230,45 +235,21 @@ export class Game {
     }
 
     public update(currentTimestamp: number): void {
-        if (Game.FPS_CAP > 0 && currentTimestamp < this.lastTimestamp + 1 / Game.FPS_CAP * 1000) {
-            this.animationFrameId = requestAnimationFrame(this.update.bind(this));
-            return;
-        }
-
-        let updates = 0;
         let dt: number;
 
         if (this.lastTimestamp === 0) {
             // First frame, there's no delta time
             dt = Game.TIME_STEP;
-            this.lastTimestamp = currentTimestamp;
         } else {
             dt = (currentTimestamp - this.lastTimestamp) / 1000;
         }
 
-        if (dt < Game.TIME_STEP) {
-            this.animationFrameId = requestAnimationFrame(this.update.bind(this));
-            return;
-        }
-
+        this.lastTimestamp = currentTimestamp;
         this.fps = Game.FPS_DECAY * (1 / dt) + (1 - Game.FPS_DECAY) * this.fps;
 
-        while (this.running && dt >= Game.TIME_STEP) {
-            for (const system of this.systems) {
-                system.update(Game.TIME_STEP, this);
-            }
-
-            dt -= Game.TIME_STEP;
-            updates++;
-
-            if (updates >= Game.MAX_UPDATES_PER_FRAME) {
-                console.error('Update loop can\'t keep up!');
-                this.lastTimestamp = 0;
-                break;
-            }
+        for (const system of this.systems) {
+            system.update(Game.TIME_STEP, this);
         }
-
-        this.lastTimestamp = currentTimestamp;
 
         if (this.running) {
             this.animationFrameId = requestAnimationFrame(this.update.bind(this));
