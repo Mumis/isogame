@@ -1,0 +1,17 @@
+{
+    "moveUp": "KeyW",
+    "moveDown": "KeyS",
+    "moveLeft": "KeyA",
+    "moveRight": "KeyD",
+    "jump": "Space",
+    "sprint": "ShiftLeft",
+
+    "skill1": "mouseLeft",
+    "skill2": "mouseRight",
+    "skill3": "Digit3",
+    "skill4": "Digit4",
+    "skill5": "Digit5",
+    "skill6": "Digit6",
+    "skill7": "Digit7",
+    "skill8": "Digit8"
+}

@@ -1,6 +1,7 @@
 import { Movable } from '../Components/Movable';
 import { Physical } from '../Components/Physical';
 import { Entity, EntityDirection } from '../Entities/Entity';    
+import { Player } from '../Entities/Player';
 import { Game } from '../Game/Game';
 import { Vector3 } from '../Util/Vector3';
 import { System } from './System';
@@ -15,6 +16,14 @@ export class VelocitySystem extends System {
     }
 
     public update(dt: number, game: Game): void {
+        const player = this.filteredEntities.find(entity => entity instanceof Player);
+
+        // for (const entity of this.filteredEntities.filter(entity => entity !== player)) {
+        //     const physical = entity.getComponent(Physical);
+
+        //     physical.velocity = player!.position.subtract(entity.position).add(new Vector3(Math.random(), 0, Math.random())).normalize()
+        // }
+
         for (const entity of this.filteredEntities) {
             const physical = entity.getComponent(Physical);
             

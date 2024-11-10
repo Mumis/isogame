@@ -6,6 +6,7 @@ import { Stats } from '../../../Components/Stats';
 import { Collidable, CubeHitbox } from '../../../Components/Collidable';
 import { Vector3 } from '../../../Util/Vector3';
 import { Drawable } from '../../../Components/Drawable';
+import { Character } from '../../../Components/Character';
 
 export class Slime extends Entity {
     public frameHeight: number = 32;
@@ -14,14 +15,16 @@ export class Slime extends Entity {
     public height: number = 32;
     public castShadow: boolean = true;
 
-    constructor(public position = new Vector3(3, 3, 3)) {
+    constructor(public position = new Vector3(3, 3, 3), size = 32) {
         super();
-
+        this.width = size;
+        this.height = size;
         this.addComponents(
-            new Drawable(),
+            new Character('Slime'),
+            //new Drawable(),
             new Stats(),
             new Physical(),
-            new Collidable(new CubeHitbox(this, 0.33, 0.33, 0.5, 0, 0, 0)),
+            new Collidable(new CubeHitbox(this, size / 100, size / 100, size / 100, 0, 0, 0)),
             new Movable(),
         );
 

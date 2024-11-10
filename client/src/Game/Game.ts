@@ -5,8 +5,6 @@ import { EntityAdded } from '../Event/EntityAdded';
 import { EntityRemoved } from '../Event/EntityRemoved';
 import { EventBus } from '../Event/EventBus';
 import { CameraSystem } from '../Systems/CameraSystem';
-import { MovementSystem } from '../Systems/MovementSystem';
-import { RandomMovementSystem } from '../Systems/RandomMovementSystem';
 import { DrawSystem } from '../Systems/DrawSystem';
 import { StateSystem } from '../Systems/StateSystem';
 import { System } from '../Systems/System';
@@ -22,16 +20,18 @@ import { Collidable, CubeHitbox } from '../Components/Collidable';
 import { PhysicalCollisionSystem } from '../Systems/PhysicalCollisionSystem';
 import { TerrainCollisionSystem } from '../Systems/TerrainCollisionSystem';
 import { World } from './World';
+import Controls from './controls.json';
+import { ControlsSystem } from '../Systems/ControlsSystem';
 
 export class Game {
     private static readonly TIME_STEP = 1 / 144;
-    private static readonly MAX_UPDATES_PER_FRAME = 10;
     private static readonly FPS_DECAY = 0.1;
-    private static readonly FPS_CAP = -1; // -1 === uncapped
 
     public static readonly TILE_SIZE_WIDTH = 64;
     public static readonly TILE_SIZE_DEPTH = 32;
     public static readonly TILE_OFFSET = 16;
+
+    public controls = Controls;
 
     private readonly map = [[
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -61,7 +61,7 @@ export class Game {
         // Normal Systems
         //new RandomMovementSystem(),
         
-        new MovementSystem(),
+        new ControlsSystem(),
         // new GravitySystem(),
         new VelocitySystem(),
 
@@ -74,7 +74,7 @@ export class Game {
         new CameraSystem(),
         new DrawSystem(),
         new HudSystem(),
-        new DebugSystem(),
+        //new DebugSystem(),
     ];
     
     private animationFrameId: number | null = null;
@@ -85,6 +85,9 @@ export class Game {
     public width: number = window.innerWidth;
     
     public cameraPosition: Vector3 = new Vector3();
+
+    public inputs = new Set();
+    public mouseWorldPos = new Vector3();
 
     public constructor(
         public readonly ctx: CanvasRenderingContext2D,
@@ -140,21 +143,53 @@ export class Game {
 
         this.entities.push(tile)
 
-        // for (let i = 0; i < 200; i++) {
-        //     this.entities.push(new Slime(new Vector3(Math.random() * 20, 2, Math.random() * 20)));
-        // }
+        for (let i = 0; i < 400; i++) {
+            this.entities.push(new Slime(new Vector3(Math.random() * 40, 3, Math.random() * 40), 32 + Math.random() * 64));
+        }
 
-        window.addEventListener('click', (event) => {
-            const mouseX = event.clientX; // Get the X coordinate of the mouse click
-            const mouseY = event.clientY; // Get the Y coordinate of the mouse click
-        
-            // Convert the screen position to world position
-            const worldPosition = Game.isoTo2D(new Vector3(mouseX, mouseY, 0));
-        
-            console.log(`World Position: ${worldPosition.floor()}`);
-        });
-
+        addEventListener('keydown', this.onKeyDown.bind(this));
+        addEventListener('keyup', this.onKeyUp.bind(this));
+        addEventListener('mousedown', this.onMouseDown.bind(this));
+        addEventListener('mouseup', this.onMouseUp.bind(this));
+        addEventListener('mousemove', this.onMouseMove.bind(this));
         addEventListener('resize', this.onResize.bind(this));
+        
+        addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+    }
+
+    public onMouseMove(event: MouseEvent) {
+        console.log(event);
+    }
+
+    public onMouseDown(event: MouseEvent) {
+        if (event.button === 0) {
+            this.inputs.add('mouseLeft');
+        }
+
+        if (event.button === 2) {
+            this.inputs.add('mouseRight');
+        }
+    }
+
+    public onMouseUp(event: MouseEvent) {
+        if (event.button === 0) {
+            this.inputs.delete('mouseLeft');
+        }
+
+        if (event.button === 2) {
+            this.inputs.delete('mouseRight');
+        }
+    }
+
+    public onKeyDown(event: KeyboardEvent) {
+        console
+        this.inputs.add(event.code);
+    }
+
+    public onKeyUp(event: KeyboardEvent) {
+        this.inputs.delete(event.code);
     }
 
     public addSystem(system: System): void {
@@ -273,90 +308,43 @@ export class Game {
     //     return new Vector3(x, y, z);
     // }
 
-    public static isoTo2D(vector: Vector3): Vector3{
-        return new Vector3(
-            (2 * vector.z - vector.x) / 2,
-            (2 * vector.z + vector.x) / 2,
-            0
-        );
+    public isoToThreeD(position: Vector3): Vector3{
+        const x = (position.x / (Game.TILE_SIZE_WIDTH / 2) + position.y / (Game.TILE_SIZE_DEPTH / 2)) / 2;
+        const z = (position.x / (Game.TILE_SIZE_WIDTH / 2) - position.y / (Game.TILE_SIZE_DEPTH / 2)) / 2;
+        const y = -(position.y + (x * Game.TILE_SIZE_DEPTH / 2) - (z * Game.TILE_SIZE_DEPTH / 2)) / Game.TILE_SIZE_DEPTH;
+    
+        return new Vector3(x, y, z);
     }
 
-    public static worldPosToScreenPos(position: Vector3): Vector3 {
-        return new Vector3(
-            ((position.x * Game.TILE_SIZE_WIDTH / 2) + (position.z * Game.TILE_SIZE_WIDTH / 2)),
-            ((position.x * Game.TILE_SIZE_DEPTH / 2) - (position.z * Game.TILE_SIZE_DEPTH / 2))  - (position.y * Game.TILE_SIZE_DEPTH),
-            0
-        );
+    public threeDtoIso(position: Vector3): Vector3{
+        const x = ((position.x * Game.TILE_SIZE_WIDTH / 2) + (position.z * Game.TILE_SIZE_WIDTH / 2));
+        const z = 0;
+        const y = ((position.x * Game.TILE_SIZE_DEPTH / 2) - (position.z * Game.TILE_SIZE_DEPTH / 2))  - (position.y * Game.TILE_SIZE_DEPTH);
+
+        return new Vector3(x, y, z);
     }
-    
-    // public static worldPosToScreenPos(position: Vector3, offsetX: number = 0, offsetY: number = 0): Vector3 {
-    //     const x = (position.x * Game.TILE_SIZE_WIDTH / 2) + (position.z * Game.TILE_SIZE_WIDTH / 2) + offsetX;
-    //     const y = (position.x * Game.TILE_SIZE_DEPTH / 2) - (position.z * Game.TILE_SIZE_DEPTH / 2) - (position.y * Game.TILE_SIZE_DEPTH) + offsetY;
 
-    //     return new Vector3(x, y, 0);
-    // }
+    public worldPosToScreenPos(position: Vector3): Vector3 {
+        const cameraIsoPos = this.threeDtoIso(this.cameraPosition);
 
-    // public static screenPosToWorldPos(screenPos: Vector3): Vector3 {
-    //     const TILE_WIDTH = Game.TILE_SIZE_WIDTH;   // Width of tile
-    //     const TILE_DEPTH = Game.TILE_SIZE_DEPTH;   // Depth of tile
+        // Calculate the camera offsets to center the view
+        const cameraX = cameraIsoPos.x - this.ctx.canvas.width / 2;
+        const cameraY = cameraIsoPos.y - this.ctx.canvas.height / 2;
 
-    //     const x = ((screenPos.x) / (TILE_WIDTH / 2)) - ((screenPos.y) / (TILE_DEPTH / 2));
-    //     const z = ((screenPos.x) / (TILE_WIDTH / 2)) + ((screenPos.y) / (TILE_DEPTH / 2));
+        const isoPos = this.threeDtoIso(position);
 
-    //     const y = (screenPos.y + (TILE_DEPTH / 2)) / TILE_DEPTH; // Adjust y based on depth
+        return isoPos.subtract(new Vector3(cameraX, cameraY, 0));
+    }
 
-    //     return new Vector3(x, y, z);
-    // }
+    public screenPosToWorldPos(position: Vector3): Vector3 {
+        const cameraIsoPos = this.threeDtoIso(this.cameraPosition);
 
-    // public static worldPosToScreenPos(pt:Vector3): Vector3 {
-    //     var tempPt:Vector3 = new Vector3(0, 0, 0);
-    //     tempPt.x = (2 * pt.z + pt.x) / 2;
-    //     tempPt.z = (2 * pt.z - pt.x) / 2;
-    //     return(tempPt);
-    //   }
+        // Calculate the camera offsets to center the view
+        const cameraX = cameraIsoPos.x - this.ctx.canvas.width / 2;
+        const cameraY = cameraIsoPos.y - this.ctx.canvas.height / 2;
 
-    //   public static screenPosToWorldPos(pt:Vector3): Vector3 {
-    //     var tempPt:Vector3 = new Vector3(0,0,0);
-    //     tempPt.x = pt.x - pt.z;
-    //     tempPt.z = (pt.x + pt.z) / 2;
-    //     return(tempPt);
-    // }
+        const isoPos = this.threeDtoIso(position);
 
-    // public static isoTo2D(pt: Vector3): Vector3 {
-    //     var tempPt: Vector3 = new Vector3(0, 0, 0);
-    //     tempPt.x = (2 * pt.z + pt.x) / 2;
-    //     tempPt.z = (2 * pt.z - pt.x) / 2;
-    //     return(tempPt);
-    // }
-
-    // public static twoDToIso(pt:Vector3): Vector3 {
-    //     var tempPt: Vector3 = new Vector3(0, 0, 0);
-    //     tempPt.x = pt.x - pt.z;
-    //     tempPt.z = (pt.x + pt.z) / 2;
-    //     return(tempPt);
-    // }
-
-    // public static getTileCoordinates(pt: Vector3): Vector3 {
-    //     var tempPt: Vector3 = new Vector3(0, 0, 0);
-    //     tempPt.x = Math.floor(pt.x / Game.TILE_SIZE_WIDTH);
-    //     tempPt.y = Math.floor(pt.z / Game.TILE_SIZE_DEPTH);
-    //     return(tempPt);
-    // }
-
-    // public static worldPosToScreenPos(pt: Vector3): Vector3 {
-    //     var tempPt: Vector3 = new Vector3(0, 0, 0);
-    //     tempPt.x = Math.floor(pt.x / Game.TILE_SIZE_WIDTH);
-    //     tempPt.y = Math.floor(pt.z / Game.TILE_SIZE_DEPTH);
-    //     return(tempPt);
-    //   }
-    
-
-    // public positionInCamera(position: Vector3): Vector3 {
-        
-    //     return position.subtract(new Vector3(
-    //         this.cameraPosition.x - this.ctx.canvas.width / 2,
-    //         this.cameraPosition.y,
-    //         this.cameraPosition.z - this.ctx.canvas.width / 2
-    //     ));
-    // }
+        return isoPos.add(new Vector3(cameraX, cameraY, 0));
+    }
 }

@@ -10,6 +10,10 @@ import { Drawable } from '../Components/Drawable';
 import { Game } from '../Game/Game';
 import tile30 from '../../assets/tiles/tile_30.png';
 import { Vector3 } from '../Util/Vector3';
+import { Abilities } from '../Components/Abilities';
+import { Dash } from '../Components/ability/Dash';
+import { Slash } from '../Components/ability/Slash';
+import { Ability } from '../Components/ability/Ability';
 
 export class Player extends Entity {
     public frameHeight = 32;
@@ -23,10 +27,16 @@ export class Player extends Entity {
         super();
 
         this.addComponents(
-            new Drawable(),
+            //new Drawable(),
+            new Abilities(this, [
+                new Slash(),
+                new Dash()
+            ]),
             new Stats(),
             new Physical(),
-            new Collidable(new CubeHitbox(this, 0.33, 0.33, 0.5, 0, 0, 0)),
+            new Collidable(
+                new CubeHitbox(this, 0.33, 0.33, 0.5, 0, 0, 0)
+            ),
             new Movable(),
         );
 

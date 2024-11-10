@@ -114,8 +114,8 @@ export class Entity {
         }
     }
 
-    public draw(ctx: CanvasRenderingContext2D, dt: number, opacity: number) {        
-        const screenPos = Game.worldPosToScreenPos(this.position);
+    public draw(game: Game, dt: number, opacity: number) {        
+        const screenPos = game.worldPosToScreenPos(this.position);
         const width = this.width;
         const height = this.height;
         
@@ -134,7 +134,7 @@ export class Entity {
         //     ctx.fill();
         // }
 
-        ctx.imageSmoothingEnabled = false;
+        game.ctx.imageSmoothingEnabled = false;
 
         let animationData = this.spirteSheetMap.find((map) => 
             map.state === this.state &&
@@ -151,12 +151,12 @@ export class Entity {
         const sourceY = yIndex * this.frameHeight;
     
         // Save the current transformation matrix
-        ctx.save();    
+        game.ctx.save();    
 
-        ctx.globalAlpha = opacity;
+        game.ctx.globalAlpha = opacity;
 
         // Draw the specific frame from the sprite sheet
-        ctx.drawImage(
+        game.ctx.drawImage(
             this.image,
             sourceX,
             sourceY,  
@@ -168,7 +168,7 @@ export class Entity {
             height
         );
         
-        ctx.restore();
+        game.ctx.restore();
         
         // Accumulate the time elapsed
         this.timeElapsed += dt;

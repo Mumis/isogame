@@ -4,9 +4,6 @@ import { Game } from '../Game/Game';
 import { System } from './System';
 
 export class DrawSystem extends System {
-    private readonly bufferCanvas: HTMLCanvasElement = document.createElement('canvas');
-    private readonly bufferCtx: CanvasRenderingContext2D = this.bufferCanvas.getContext('2d')!;
-
     public constructor() {
         super();
     }
@@ -16,18 +13,8 @@ export class DrawSystem extends System {
     }
 
     public update(dt: number, game: Game): void {
-        this.bufferCanvas.height = game.ctx.canvas.clientHeight;
-        this.bufferCanvas.width = game.ctx.canvas.clientWidth;
-        this.bufferCtx.imageSmoothingEnabled = false;
-
-        const screenPos = Game.worldPosToScreenPos(game.cameraPosition);
-
-        // Calculate the camera offsets to center the view
-        const cameraX = screenPos.x - this.bufferCanvas.width / 2;
-        const cameraY = screenPos.y - this.bufferCanvas.height / 2;
-
-        // Set up the transformation: translate to the camera position
-        this.bufferCtx.transform(1, 0, 0, 1, -cameraX, -cameraY);
+        game.ctx.imageSmoothingEnabled = false;
+        game.ctx.clearRect(0, 0, game.ctx.canvas.clientWidth, game.ctx.canvas.clientHeight);
 
         const orderedFilteredEntities = [...this.filteredEntities].sort((a, b) => { 
             const aFloored = a.position;
@@ -68,11 +55,8 @@ export class DrawSystem extends System {
                 entity.removeComponent(drawable)
             }
 
-            entity.draw(this.bufferCtx, dt, drawable.opacity);
+            entity.draw(game, dt, drawable.opacity);
         }
-
-        game.ctx.clearRect(0, 0, game.ctx.canvas.clientWidth, game.ctx.canvas.clientHeight);
-        game.ctx.drawImage(this.bufferCanvas, 0, 0);
     }
 }
 

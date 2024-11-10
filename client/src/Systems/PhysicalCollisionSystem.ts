@@ -56,7 +56,7 @@ export class PhysicalCollisionSystem extends System {
         
         // Determine the push distance based on overlap
         const pushDistance = minOverlap / 2;
-        console.log(pushDistance)
+        // console.log(pushDistance)
     
         // Apply equal push to both entities in opposite directions
         a.attached.position = a.attached.position.add(direction.multiplyScalar(-pushDistance));
